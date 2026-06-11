@@ -816,7 +816,7 @@ Untuk KESIMPULAN_STATUS, tulis "Cukup" jika asupan tampak seimbang, atau "Kurang
                 const base64Data = fotoBase64Cache || await fileKeBase64(file);
                 const mimeType = fotoMimeTypeCache || file.type || 'image/jpeg';
 
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
