@@ -857,9 +857,29 @@ Ulasan Nutrisi & Saran Posyandu:
                     return;
                 }
 
-                renderKartuGizi(parsed);
+                const textOutput = document.getElementById('text-analisis-ai');
+                const badge = document.getElementById('badge-status-gizi');
+                const outputContainer = document.getElementById('hasil-scan-container');
 
-                const analisisBersih = bersihkanMarkdown(aiResultText);
+                // Bersihkan tag penanda status agar tidak ikut tampil di teks ulasan utama
+                let cleanText = aiResultText
+                    .replace("STATUS: MAKANAN_VALID", "")
+                    .replace("[KESIMPULAN_STATUS]: Cukup", "")
+                    .replace("[KESIMPULAN_STATUS]: Kurang", "")
+                    .trim();
+
+                // Tampilkan seluruh deskripsi, kalori, dan saran gizi secara utuh tanpa terpotong
+                textOutput.className = 'text-base text-slate-700 leading-relaxed whitespace-pre-line';
+                textOutput.innerText = cleanText;
+
+                badge.textContent = 'Gizi ' + parsed.statusGizi;
+                badge.className = parsed.statusGizi === 'Cukup'
+                    ? 'text-sm font-bold px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800'
+                    : 'text-sm font-bold px-4 py-1.5 rounded-full bg-amber-100 text-amber-800';
+
+                outputContainer.classList.remove('hidden');
+
+                const analisisBersih = cleanText;
 
                 const { error: dbError } = await _supabase.from('harian_nutrisi').insert([{
                     anak_id: anakId,
