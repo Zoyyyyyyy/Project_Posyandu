@@ -42,7 +42,7 @@
                     class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-emerald-800/60 hover:bg-emerald-900 active:bg-emerald-950 transition cursor-pointer">
                     Scan Gizi
                 </button>
-                <button type="button" onclick="switchView('view-admin')"
+                <button type="button" onclick="bukaHalamanKader()"
                     class="nav-btn px-4 py-2.5 rounded-xl text-sm font-semibold bg-white/15 hover:bg-white/25 active:bg-white/30 transition cursor-pointer">
                     Kader
                 </button>
@@ -52,24 +52,37 @@
 
     <main class="max-w-3xl mx-auto px-5 py-6 sm:py-8">
 
-        <!-- GUARD API KEY GEMINI -->
-        <div id="gemini-key-guard"
-            class="mb-6 p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-                <p id="gemini-guard-title" class="text-base font-bold text-amber-900">API Key Gemini belum terpasang</p>
-                <p id="gemini-guard-desc" class="text-sm text-amber-800 mt-1">
-                    Masukkan kunci API Gemini agar fitur scan makanan bisa digunakan.
+        <!-- VIEW: LOGIN KADER -->
+        <section id="view-login-kader" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 max-w-md mx-auto">
+            <header class="border-b border-slate-100 pb-5 mb-8 text-center sm:text-left">
+                <h2 class="text-2xl font-bold text-slate-900">Masuk Area Kader</h2>
+                <p class="text-base text-slate-500 mt-2">
+                    Halaman ini khusus kader dan bidan Posyandu. Warga umum tidak perlu login di sini.
                 </p>
-            </div>
-            <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                <input type="password" id="web-gemini-key" placeholder="AIzaSy..."
-                    class="bg-white border border-amber-200 text-base px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 w-full sm:w-64">
-                <button type="button" onclick="simpanGeminiKey()"
-                    class="btn-primary bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-base font-bold px-6 py-3 rounded-xl cursor-pointer whitespace-nowrap">
-                    Simpan
+            </header>
+
+            <form id="form-login-kader" class="space-y-6">
+                <div>
+                    <label for="login-username" class="block text-base font-bold text-slate-700 mb-2">Username</label>
+                    <input type="text" id="login-username" required autocomplete="username"
+                        class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none">
+                </div>
+                <div>
+                    <label for="login-password" class="block text-base font-bold text-slate-700 mb-2">Password</label>
+                    <input type="password" id="login-password" required autocomplete="current-password"
+                        class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none">
+                </div>
+                <p id="login-error" class="hidden text-base text-red-600 font-medium bg-red-50 border border-red-100 rounded-xl px-4 py-3" role="alert"></p>
+                <button type="submit" id="btn-login-kader"
+                    class="btn-primary w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-base rounded-xl cursor-pointer shadow-sm">
+                    Masuk Dashboard
                 </button>
-            </div>
-        </div>
+                <button type="button" onclick="switchView('view-register')"
+                    class="w-full text-base font-semibold text-slate-500 hover:text-slate-700 py-2 transition cursor-pointer">
+                    Kembali ke Pendaftaran
+                </button>
+            </form>
+        </section>
 
         <!-- VIEW: REGISTRASI -->
         <section id="view-register" class="spa-view bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
@@ -193,11 +206,36 @@
                     <h2 class="text-2xl font-bold text-slate-900">Dashboard Kader</h2>
                     <p class="text-base text-slate-500 mt-2">Daftar anak terdaftar di Posyandu Demalang.</p>
                 </div>
-                <button type="button" onclick="fetchDataAnakAdmin()"
-                    class="btn-primary shrink-0 bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 px-6 py-3 rounded-xl text-base font-bold transition cursor-pointer">
-                    Segarkan Data
-                </button>
+                <div class="flex flex-wrap gap-2 shrink-0">
+                    <button type="button" onclick="fetchDataAnakAdmin()"
+                        class="btn-primary bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 px-6 py-3 rounded-xl text-base font-bold transition cursor-pointer">
+                        Segarkan Data
+                    </button>
+                    <button type="button" onclick="logoutKader()"
+                        class="btn-primary bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 border border-red-200 px-6 py-3 rounded-xl text-base font-bold transition cursor-pointer">
+                        Keluar
+                    </button>
+                </div>
             </header>
+
+            <!-- Konfigurasi API Key Gemini — hanya di area kader -->
+            <div id="gemini-key-guard"
+                class="mb-6 p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <p id="gemini-guard-title" class="text-base font-bold text-amber-900">API Key Gemini belum terpasang</p>
+                    <p id="gemini-guard-desc" class="text-sm text-amber-800 mt-1">
+                        Atur kunci API Gemini di sini agar fitur Scan Gizi warga bisa berjalan.
+                    </p>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <input type="password" id="web-gemini-key" placeholder="AIzaSy..."
+                        class="bg-white border border-amber-200 text-base px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 w-full sm:w-64">
+                    <button type="button" onclick="simpanGeminiKey()"
+                        class="btn-primary bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-base font-bold px-6 py-3 rounded-xl cursor-pointer whitespace-nowrap">
+                        Simpan Key
+                    </button>
+                </div>
+            </div>
 
             <div class="overflow-x-auto rounded-xl border border-slate-200">
                 <table class="w-full text-left text-base text-slate-600 min-w-[640px]">
@@ -247,9 +285,14 @@
         /* ============================================================
          * KONFIGURASI SUPABASE — kredensial tetap di kode (demo Fase 1)
          * ============================================================ */
-        const SUPABASE_URL = 'https://ordqbnaeiovwthusjzpx.supabase.co';
+        const SUPABASE_URL = 'https://ordqbnaeiovvthusjzpx.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_Q8Y9pqQ8RDxHlf374sxlSw_LxXuqYFw';
         const DUMMY_UUID = '00000000-0000-0000-0000-000000000000';
+
+        /** Kredensial login kader (Fase 1 — statis, area terbatas) */
+        const KADER_USERNAME = 'admin';
+        const KADER_PASSWORD = 'kaderdemalang';
+        const KADER_AUTH_KEY = 'kader_auth';
 
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -282,6 +325,8 @@
 
         function initGeminiKeyGuard() {
             const guard = document.getElementById('gemini-key-guard');
+            if (!guard) return;
+
             const title = document.getElementById('gemini-guard-title');
             const desc = document.getElementById('gemini-guard-desc');
             const inputField = document.getElementById('web-gemini-key');
@@ -289,8 +334,13 @@
             if (GEMINI_API_KEY) {
                 guard.className = 'mb-6 p-5 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4';
                 title.textContent = 'API Key Gemini aktif';
-                desc.textContent = 'Kunci tersimpan aman di perangkat ini.';
+                desc.textContent = 'Kunci tersimpan aman di perangkat ini. Fitur Scan Gizi siap dipakai warga.';
                 inputField.value = GEMINI_API_KEY;
+            } else {
+                guard.className = 'mb-6 p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4';
+                title.textContent = 'API Key Gemini belum terpasang';
+                desc.textContent = 'Atur kunci API Gemini di sini agar fitur Scan Gizi warga bisa berjalan.';
+                inputField.value = '';
             }
         }
 
@@ -306,10 +356,70 @@
             tampilkanToast('API Key Gemini berhasil disimpan.');
         }
 
+        /* ============================================================
+         * AUTENTIKASI KADER — sessionStorage gate
+         * ============================================================ */
+
+        function isKaderAuthenticated() {
+            return sessionStorage.getItem(KADER_AUTH_KEY) === 'true';
+        }
+
+        /** Klik menu Kader: cek session, tampilkan login atau dashboard */
+        function bukaHalamanKader() {
+            if (isKaderAuthenticated()) {
+                switchView('view-admin');
+            } else {
+                switchView('view-login-kader');
+            }
+        }
+
+        function logoutKader() {
+            sessionStorage.removeItem(KADER_AUTH_KEY);
+            document.getElementById('form-login-kader')?.reset();
+            const errEl = document.getElementById('login-error');
+            if (errEl) errEl.classList.add('hidden');
+            tampilkanToast('Anda telah keluar dari area kader.');
+            switchView('view-register');
+        }
+
+        document.getElementById('form-login-kader').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btn-login-kader');
+            const errEl = document.getElementById('login-error');
+            const username = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            btn.disabled = true;
+            btn.textContent = 'Memverifikasi...';
+            errEl.classList.add('hidden');
+
+            if (username === KADER_USERNAME && password === KADER_PASSWORD) {
+                sessionStorage.setItem(KADER_AUTH_KEY, 'true');
+                document.getElementById('form-login-kader').reset();
+                tampilkanToast('Selamat datang, Kader.');
+                switchView('view-admin');
+            } else {
+                errEl.textContent = 'Username atau password salah. Silakan coba lagi.';
+                errEl.classList.remove('hidden');
+            }
+
+            btn.disabled = false;
+            btn.textContent = 'Masuk Dashboard';
+        });
+
         function switchView(viewId) {
+            // Lindungi dashboard admin — wajib login kader
+            if (viewId === 'view-admin' && !isKaderAuthenticated()) {
+                viewId = 'view-login-kader';
+            }
+
             document.querySelectorAll('.spa-view').forEach(v => v.classList.add('hidden'));
             document.getElementById(viewId).classList.remove('hidden');
-            if (viewId === 'view-admin') fetchDataAnakAdmin();
+
+            if (viewId === 'view-admin') {
+                initGeminiKeyGuard();
+                fetchDataAnakAdmin();
+            }
             if (viewId === 'view-scan-gizi') renderDropdownAnak();
         }
 
@@ -435,7 +545,7 @@
                 renderDropdownAnak(anakBaru?.id || null);
 
                 tampilkanToast('Profil anak berhasil disimpan.');
-                switchView('view-admin');
+                switchView('view-register');
             } catch (err) {
                 console.error('[Registrasi]', err);
                 tampilkanToast('Gagal menyimpan: ' + err.message, 'error');
@@ -680,8 +790,7 @@ Untuk KESIMPULAN_STATUS, tulis "Cukup" jika asupan tampak seimbang, atau "Kurang
         /** Fungsi inti: scan foto → Gemini → validasi → simpan Supabase */
         async function prosesScanGiziAI() {
             if (!GEMINI_API_KEY) {
-                tampilkanToast('Masukkan API Key Gemini di bagian atas halaman.', 'error');
-                document.getElementById('gemini-key-guard').scrollIntoView({ behavior: 'smooth' });
+                tampilkanToast('Fitur scan belum aktif. Minta kader Posyandu untuk mengatur API Key Gemini.', 'error');
                 return;
             }
 
@@ -777,7 +886,6 @@ Untuk KESIMPULAN_STATUS, tulis "Cukup" jika asupan tampak seimbang, atau "Kurang
         /* ============================================================
          * INISIALISASI SAAT HALAMAN DIBUKA
          * ============================================================ */
-        initGeminiKeyGuard();
         muatDaftarAnak().then(() => renderDropdownAnak());
     </script>
 </body>
