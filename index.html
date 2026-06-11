@@ -50,7 +50,7 @@
         </div>
     </nav>
 
-    <main class="max-w-3xl mx-auto px-5 py-6 sm:py-8">
+    <main class="max-w-4xl mx-auto px-5 py-6 sm:py-8">
 
         <!-- VIEW: LOGIN KADER -->
         <section id="view-login-kader" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 max-w-md mx-auto">
@@ -146,8 +146,8 @@
             </form>
         </section>
 
-        <!-- VIEW: SCAN GIZI AI -->
-        <section id="view-scan-gizi" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
+        <!-- VIEW: SCAN GIZI AI — menu utama, tampilan dominan -->
+        <section id="view-scan-gizi" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 w-full">
             <header class="border-b border-slate-100 pb-5 mb-8">
                 <h2 class="text-2xl font-bold text-slate-900">Scan Gizi Makanan</h2>
                 <p class="text-base text-slate-500 mt-2">
@@ -186,14 +186,14 @@
                     Mulai Analisis Gizi
                 </button>
 
-                <!-- Hasil analisis -->
-                <div id="hasil-scan-container" class="hidden mt-2 space-y-4" aria-live="polite">
-                    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-emerald-100 pb-4">
-                        <h3 class="text-lg font-bold text-emerald-900">Hasil Analisis Gizi</h3>
+                <!-- Hasil analisis — wadah lebar, tanpa pembatas tinggi -->
+                <div id="hasil-scan-container" class="hidden mt-6 border-2 p-6 rounded-2xl bg-emerald-50/70 border-emerald-200 shadow-xs w-full" aria-live="polite">
+                    <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-emerald-200 pb-4 mb-5">
+                        <h3 class="text-xl font-bold text-emerald-900">Hasil Analisis Gizi Lengkap</h3>
                         <span id="badge-status-gizi" class="text-sm font-bold px-4 py-1.5 rounded-full"></span>
                     </div>
-                    <div id="text-analisis-ai" class="space-y-4 text-base text-slate-700 leading-relaxed">
-                        <!-- Kartu gizi dirender via JS -->
+                    <div id="text-analisis-ai" class="text-sm text-slate-800 leading-relaxed font-normal whitespace-pre-line w-full">
+                        <!-- Seluruh ulasan AI ditampilkan utuh via JS -->
                     </div>
                 </div>
             </div>
@@ -657,20 +657,7 @@
 
         const GEMINI_MODEL = 'gemini-2.5-flash';
 
-        /** Bersihkan artefak markdown dari respons AI */
-        function bersihkanMarkdown(teks) {
-            return teks
-                .replace(/\*\*(.*?)\*\*/g, '$1')
-                .replace(/\*(.*?)\*/g, '$1')
-                .replace(/^#{1,6}\s+/gm, '')
-                .replace(/^[-*•]\s+/gm, '')
-                .replace(/`([^`]+)`/g, '$1')
-                .replace(/^\s*STATUS:\s*MAKANAN_VALID\s*$/gim, '')
-                .replace(/^\s*STATUS:\s*BUKAN_MAKANAN\s*$/gim, '')
-                .trim();
-        }
-
-        /** Parse respons terstruktur dari Gemini */
+        /** Validasi respons AI — deteksi BUKAN_MAKANAN & ambil status gizi untuk badge */
         function parseResponsGizi(teksMentah) {
             const teks = teksMentah.trim();
 
@@ -679,85 +666,22 @@
             }
 
             if (!/STATUS:\s*MAKANAN_VALID/i.test(teks)) {
-                // Fallback: jika AI tidak mengikuti format tapi jelas bukan makanan
                 const lower = teks.toLowerCase();
                 if (lower.includes('bukan makanan') || lower.includes('bukan_makanan') || lower.includes('tidak ada makanan')) {
                     return { valid: false };
                 }
             }
 
-            const ambil = (label) => {
-                const re = new RegExp(`${label}:\\s*(.+?)(?=\\n[A-Z_]+:|$)`, 'is');
-                const m = teks.match(re);
-                return m ? m[1].trim() : '';
-            };
+            const kesimpulanMatch = teks.match(/\[KESIMPULAN_STATUS\]:\s*(.+)/i);
+            let statusGizi = 'Cukup';
+            if (kesimpulanMatch && /kurang/i.test(kesimpulanMatch[1])) statusGizi = 'Kurang';
 
-            let statusGizi = ambil('KESIMPULAN_STATUS') || 'Cukup';
-            if (/kurang/i.test(statusGizi)) statusGizi = 'Kurang';
-            else statusGizi = 'Cukup';
-
-            return {
-                valid: true,
-                statusGizi,
-                namaMakanan: ambil('NAMA_MAKANAN'),
-                kalori: ambil('KALORI_PERKIRAAN'),
-                protein: ambil('PROTEIN'),
-                lemak: ambil('LEMAK'),
-                karbohidrat: ambil('KARBOHIDRAT'),
-                saran: ambil('SARAN'),
-                teksMentah: teks
-            };
+            return { valid: true, statusGizi };
         }
 
-        /** Render kartu informasi gizi */
-        function renderKartuGizi(parsed) {
-            const container = document.getElementById('text-analisis-ai');
-            const badge = document.getElementById('badge-status-gizi');
-
-            badge.textContent = 'Gizi ' + parsed.statusGizi;
-            badge.className = parsed.statusGizi === 'Cukup'
-                ? 'text-sm font-bold px-4 py-1.5 rounded-full bg-emerald-100 text-emerald-800'
-                : 'text-sm font-bold px-4 py-1.5 rounded-full bg-amber-100 text-amber-800';
-
-            const baris = [
-                { label: 'Makanan', nilai: parsed.namaMakanan },
-                { label: 'Kalori (perkiraan)', nilai: parsed.kalori },
-                { label: 'Protein', nilai: parsed.protein },
-                { label: 'Lemak', nilai: parsed.lemak },
-                { label: 'Karbohidrat', nilai: parsed.karbohidrat }
-            ].filter(b => b.nilai);
-
-            let html = '';
-
-            if (baris.length) {
-                html += '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">';
-                baris.forEach(b => {
-                    html += `
-                        <div class="bg-white border border-emerald-100 rounded-xl p-4">
-                            <p class="text-sm font-bold text-emerald-800 mb-1">${escapeHtml(b.label)}</p>
-                            <p class="text-base text-slate-800">${escapeHtml(b.nilai)}</p>
-                        </div>
-                    `;
-                });
-                html += '</div>';
-            }
-
-            if (parsed.saran) {
-                html += `
-                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-5 mt-2">
-                        <p class="text-sm font-bold text-emerald-900 mb-2">Saran untuk Ibu</p>
-                        <p class="text-base text-slate-700 leading-relaxed">${escapeHtml(parsed.saran)}</p>
-                    </div>
-                `;
-            }
-
-            // Fallback jika parsing parsial — tampilkan teks bersih
-            if (!html) {
-                html = `<p class="text-base whitespace-pre-line">${escapeHtml(bersihkanMarkdown(parsed.teksMentah))}</p>`;
-            }
-
-            container.innerHTML = html;
-            document.getElementById('hasil-scan-container').classList.remove('hidden');
+        /** Escape HTML lalu pertahankan pindah baris sebagai <br> — aman untuk innerHTML */
+        function teksKeHtmlAman(teks) {
+            return escapeHtml(teks).replace(/\n/g, '<br>');
         }
 
         function tampilkanModalBukanMakanan() {
@@ -801,23 +725,33 @@
 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
-                const systemInstructions = `Kamu adalah seorang Dokter Anak dan Ahli Gizi Profesional di Posyandu Desa. Tugasmu adalah menganalisis foto makanan balita secara real-time.
+                const systemInstructions = `Kamu adalah seorang Dokter Anak dan Ahli Gizi Profesional di Posyandu Desa Demalang. Tugasmu menganalisis foto makanan/minuman balita secara real-time dan memberikan ulasan gizi yang sangat lengkap, rinci, dan mudah dipahami ibu-ibu di desa.
 
 Aturan Penting:
-1. JIKA gambar terbukti secara visual BUKAN makanan atau minuman, kamu WAJIB membalas HANYA dengan kata kunci singkat: "STATUS: BUKAN_MAKANAN"
-2. JIKA gambar makanan/minuman valid, berikan output dengan format terstruktur rapi seperti di bawah ini (Gunakan bahasa Indonesia yang santun, ramah, dan mudah dipahami oleh ibu-ibu/orang tua):
+1. JIKA gambar terbukti secara visual BUKAN makanan atau minuman (wajah, tangan kosong, lantai, hewan, barang elektronik, kertas kosong, dll.), kamu WAJIB membalas HANYA dengan kata kunci singkat persis: STATUS: BUKAN_MAKANAN
+2. JIKA gambar makanan/minuman valid, berikan output LENGKAP dan DETAIL dengan format terstruktur di bawah ini. Gunakan bahasa Indonesia santun, hangat, dan jelas seperti dokter anak berbicara langsung kepada Ibu di Posyandu. JANGAN memotong atau meringkas ulasan — tulis seluruh bagian hingga tuntas.
 
 STATUS: MAKANAN_VALID
-[KESIMPULAN_STATUS]: (Tulis kata 'Cukup' jika gizi seimbang, atau tulis kata 'Kurang' jika porsinya kurang karbohidrat/protein/sayur)
+[KESIMPULAN_STATUS]: (Tulis hanya kata "Cukup" jika asupan tampak seimbang, atau "Kurang" jika porsi kurang protein/karbohidrat/sayur/buah)
 
-Estimasi Kandungan Gizi & Kalori:
-• 🍲 Energi/Kalori: ± [X] kkal
-• 🥩 Protein: ± [X] gram
-• 🍚 Karbohidrat: ± [X] gram
-• 🥑 Lemak: ± [X] gram
+Identifikasi Menu:
+• Nama Menu/Makanan: (sebutkan semua komponen makanan yang terlihat di piring/foto)
+• Jenis Waktu Makan: (sarapan/makan siang/makan malam/camilan — perkiraan)
+• Porsi Perkiraan: (kecil/sedang/besar, jelaskan alasannya singkat)
 
-Ulasan Nutrisi & Saran Posyandu:
-[Berikan penjelasan singkat dan jelas tentang menu makanan di foto, apa saja manfaatnya untuk tumbuh kembang balita, dan berikan saran praktis pendukung bagi Ibu untuk mengoptimalkan porsi makan si kecil].`;
+Estimasi Kandungan Gizi & Kalori (per porsi di foto):
+• Energi/Kalori: ± [X] kkal
+• Protein: ± [X] gram
+• Karbohidrat: ± [X] gram
+• Lemak: ± [X] gram
+• Serat: ± [X] gram (jika dapat diperkirakan)
+• Air: ± [X] ml (jika minuman)
+
+Ulasan Nutrisi & Manfaat untuk Tumbuh Kembang Balita:
+(Tulis minimal 4–6 kalimat mendalam: jelaskan nilai gizi tiap komponen makanan, manfaat spesifik untuk pertumbuhan otak, tulang, daya tahan tubuh, dan energi balita usia 1–5 tahun.)
+
+Saran Dokter Anak & Posyandu untuk Ibu:
+(Tulis minimal 4–6 kalimat praktis: saran penyesuaian porsi, kombinasi makanan pelengkap yang disarankan, tips penyajian, frekuensi ideal, dan hal yang perlu diperhatikan agar asupan si kecil lebih optimal. Akhiri dengan kalimat penyemangat yang ramah.)`;
 
                 const response = await fetch(apiUrl, {
                     method: 'POST',
@@ -830,8 +764,8 @@ Ulasan Nutrisi & Saran Posyandu:
                             ]
                         }],
                         generationConfig: {
-                            temperature: 0.2,
-                            maxOutputTokens: 1024
+                            temperature: 0.3,
+                            maxOutputTokens: 4096
                         }
                     })
                 });
@@ -844,11 +778,20 @@ Ulasan Nutrisi & Saran Posyandu:
                 }
 
                 const candidate = json.candidates?.[0];
-                if (!candidate?.content?.parts?.[0]?.text) {
+                if (!candidate?.content?.parts?.length) {
                     throw new Error('AI tidak mengembalikan hasil. Coba foto ulang dengan pencahayaan lebih terang.');
                 }
 
-                const aiResultText = candidate.content.parts[0].text;
+                // Gabungkan semua part teks agar respons panjang tidak terpotong
+                const aiResultText = candidate.content.parts
+                    .filter(p => p.text)
+                    .map(p => p.text)
+                    .join('');
+
+                if (!aiResultText.trim()) {
+                    throw new Error('AI tidak mengembalikan teks. Coba foto ulang dengan pencahayaan lebih terang.');
+                }
+
                 const parsed = parseResponsGizi(aiResultText);
 
                 // BUKAN MAKANAN — hentikan, jangan simpan ke Supabase
@@ -857,7 +800,6 @@ Ulasan Nutrisi & Saran Posyandu:
                     return;
                 }
 
-                const textOutput = document.getElementById('text-analisis-ai');
                 const badge = document.getElementById('badge-status-gizi');
                 const outputContainer = document.getElementById('hasil-scan-container');
 
@@ -869,8 +811,7 @@ Ulasan Nutrisi & Saran Posyandu:
                     .trim();
 
                 // Tampilkan seluruh deskripsi, kalori, dan saran gizi secara utuh tanpa terpotong
-                textOutput.className = 'text-base text-slate-700 leading-relaxed whitespace-pre-line';
-                textOutput.innerText = cleanText;
+                document.getElementById('text-analisis-ai').innerHTML = teksKeHtmlAman(cleanText);
 
                 badge.textContent = 'Gizi ' + parsed.statusGizi;
                 badge.className = parsed.statusGizi === 'Cukup'
