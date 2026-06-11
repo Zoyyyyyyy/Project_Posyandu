@@ -652,27 +652,10 @@
         }
 
         /* ============================================================
-         * AI VISION FOOD GUARD — Gemini 1.5 Flash
+         * AI VISION FOOD GUARD — Gemini 2.5 Flash
          * ============================================================ */
 
         const GEMINI_MODEL = 'gemini-2.5-flash';
-        const SYSTEM_PROMPT_GIZI = `Kamu adalah asisten gizi untuk Posyandu balita Desa Demalang.
-
-TUGAS UTAMA — validasi visual:
-Periksa gambar dengan teliti. Jika gambar BUKAN makanan atau minuman (misalnya: wajah, tangan kosong, lantai, hewan, barang elektronik, kertas kosong, atau objek iseng), balas HANYA satu baris persis:
-STATUS: BUKAN_MAKANAN
-
-Jika gambar adalah makanan/minuman, balas dengan format PERSIS (tanpa markdown, tanpa bullet, tanpa simbol ** atau #):
-STATUS: MAKANAN_VALID
-KESIMPULAN_STATUS: Cukup
-NAMA_MAKANAN: (nama makanan/minuman yang terlihat)
-KALORI_PERKIRAAN: (angka kcal, contoh 250 kcal)
-PROTEIN: (gram)
-LEMAK: (gram)
-KARBOHIDRAT: (gram)
-SARAN: (2-3 kalimat saran gizi ramah untuk ibu, bahasa Indonesia santun)
-
-Untuk KESIMPULAN_STATUS, tulis "Cukup" jika asupan tampak seimbang, atau "Kurang" jika tampak kurang protein/serat/variety.`;
 
         /** Bersihkan artefak markdown dari respons AI */
         function bersihkanMarkdown(teks) {
@@ -818,13 +801,31 @@ Untuk KESIMPULAN_STATUS, tulis "Cukup" jika asupan tampak seimbang, atau "Kurang
 
                 const apiUrl = `https://generativelanguage.googleapis.com/v1/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(GEMINI_API_KEY)}`;
 
+                const systemInstructions = `Kamu adalah seorang Dokter Anak dan Ahli Gizi Profesional di Posyandu Desa. Tugasmu adalah menganalisis foto makanan balita secara real-time.
+
+Aturan Penting:
+1. JIKA gambar terbukti secara visual BUKAN makanan atau minuman, kamu WAJIB membalas HANYA dengan kata kunci singkat: "STATUS: BUKAN_MAKANAN"
+2. JIKA gambar makanan/minuman valid, berikan output dengan format terstruktur rapi seperti di bawah ini (Gunakan bahasa Indonesia yang santun, ramah, dan mudah dipahami oleh ibu-ibu/orang tua):
+
+STATUS: MAKANAN_VALID
+[KESIMPULAN_STATUS]: (Tulis kata 'Cukup' jika gizi seimbang, atau tulis kata 'Kurang' jika porsinya kurang karbohidrat/protein/sayur)
+
+Estimasi Kandungan Gizi & Kalori:
+• 🍲 Energi/Kalori: ± [X] kkal
+• 🥩 Protein: ± [X] gram
+• 🍚 Karbohidrat: ± [X] gram
+• 🥑 Lemak: ± [X] gram
+
+Ulasan Nutrisi & Saran Posyandu:
+[Berikan penjelasan singkat dan jelas tentang menu makanan di foto, apa saja manfaatnya untuk tumbuh kembang balita, dan berikan saran praktis pendukung bagi Ibu untuk mengoptimalkan porsi makan si kecil].`;
+
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         contents: [{
                             parts: [
-                                { text: SYSTEM_PROMPT_GIZI },
+                                { text: systemInstructions },
                                 { inlineData: { mimeType: mimeType, data: base64Data } }
                             ]
                         }],
