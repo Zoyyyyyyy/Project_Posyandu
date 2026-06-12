@@ -20,15 +20,16 @@
         }
         .btn-primary:active:not(:disabled) { transform: scale(0.98); }
         .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-        /* Preview foto: jaga rasio aspek tanpa distorsi */
         #preview-foto { object-fit: contain; max-width: 100%; }
+        .admin-tab-btn { transition: background-color 0.15s, color 0.15s; }
+        .admin-tab-btn.active { background-color: #059669; color: #fff; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 font-sans antialiased leading-relaxed">
 
     <!-- NAVIGASI UTAMA -->
     <nav class="bg-emerald-700 text-white shadow-sm sticky top-0 z-40" role="navigation" aria-label="Menu utama">
-        <div class="max-w-3xl mx-auto px-5 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+        <div class="max-w-5xl mx-auto px-5 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
             <button type="button" onclick="switchView('view-register')"
                 class="text-left font-bold text-lg tracking-tight hover:opacity-90 transition cursor-pointer">
                 Posyandu Demalang
@@ -50,7 +51,7 @@
         </div>
     </nav>
 
-    <main class="max-w-4xl mx-auto px-5 py-6 sm:py-8">
+    <main class="max-w-5xl mx-auto px-5 py-6 sm:py-8">
 
         <!-- VIEW: LOGIN KADER -->
         <section id="view-login-kader" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 max-w-md mx-auto">
@@ -199,62 +200,223 @@
             </div>
         </section>
 
-        <!-- VIEW: ADMIN KADER -->
-        <section id="view-admin" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
-            <header class="border-b border-slate-100 pb-5 mb-6 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+        <!-- VIEW: ADMIN KADER — Dashboard Advanced -->
+        <section id="view-admin" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 w-full">
+            <header class="border-b border-slate-100 pb-5 mb-6 flex flex-col lg:flex-row lg:justify-between lg:items-start gap-4">
                 <div>
-                    <h2 class="text-2xl font-bold text-slate-900">Dashboard Kader</h2>
-                    <p class="text-base text-slate-500 mt-2">Daftar anak terdaftar di Posyandu Demalang.</p>
+                    <h2 class="text-2xl font-bold text-slate-900">Dashboard Kader Posyandu</h2>
+                    <p class="text-base text-slate-500 mt-2">Pusat kendali pencatatan balita, pemeriksaan bulanan, dan log nutrisi AI.</p>
                 </div>
-                <div class="flex flex-wrap gap-2 shrink-0">
+                <button type="button" onclick="logoutKader()"
+                    class="btn-primary shrink-0 bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 border border-red-200 px-6 py-3 rounded-xl text-base font-bold transition cursor-pointer">
+                    Keluar
+                </button>
+            </header>
+
+            <!-- Tab navigasi dashboard -->
+            <nav class="flex flex-wrap gap-2 mb-6 pb-4 border-b border-slate-200" aria-label="Menu dashboard kader">
+                <button type="button" id="tab-btn-ringkasan" onclick="switchAdminTab('ringkasan')"
+                    class="admin-tab-btn active px-4 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 text-white cursor-pointer">
+                    Ringkasan
+                </button>
+                <button type="button" id="tab-btn-data-anak" onclick="switchAdminTab('data-anak')"
+                    class="admin-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                    Data Anak
+                </button>
+                <button type="button" id="tab-btn-catatan-bulanan" onclick="switchAdminTab('catatan-bulanan')"
+                    class="admin-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                    Catatan Bulanan
+                </button>
+                <button type="button" id="tab-btn-log-nutrisi" onclick="switchAdminTab('log-nutrisi')"
+                    class="admin-tab-btn px-4 py-2.5 rounded-xl text-sm font-bold bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                    Log Nutrisi AI
+                </button>
+            </nav>
+
+            <!-- TAB: Ringkasan -->
+            <div id="admin-tab-ringkasan" class="admin-tab-panel space-y-6">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="p-5 rounded-2xl bg-emerald-50 border border-emerald-100">
+                        <p class="text-sm font-bold text-emerald-800">Total Anak Terdaftar</p>
+                        <p id="stat-total-anak" class="text-3xl font-bold text-emerald-900 mt-2">—</p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-sky-50 border border-sky-100">
+                        <p class="text-sm font-bold text-sky-800">Pemeriksaan Bulan Ini</p>
+                        <p id="stat-pemeriksaan-bulan" class="text-3xl font-bold text-sky-900 mt-2">—</p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-amber-50 border border-amber-100">
+                        <p class="text-sm font-bold text-amber-800">Scan Nutrisi AI</p>
+                        <p id="stat-total-nutrisi" class="text-3xl font-bold text-amber-900 mt-2">—</p>
+                    </div>
+                    <div class="p-5 rounded-2xl bg-slate-50 border border-slate-200">
+                        <p class="text-sm font-bold text-slate-700">Status Gemini AI</p>
+                        <p id="stat-gemini-status" class="text-base font-bold text-slate-900 mt-2">—</p>
+                    </div>
+                </div>
+
+                <div id="gemini-key-guard"
+                    class="p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <p id="gemini-guard-title" class="text-base font-bold text-amber-900">API Key Gemini belum terpasang</p>
+                        <p id="gemini-guard-desc" class="text-sm text-amber-800 mt-1">
+                            Atur kunci API Gemini agar fitur Scan Gizi warga bisa berjalan.
+                        </p>
+                    </div>
+                    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                        <input type="password" id="web-gemini-key" placeholder="AIzaSy..."
+                            class="bg-white border border-amber-200 text-base px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 w-full sm:w-64">
+                        <button type="button" onclick="simpanGeminiKey()"
+                            class="btn-primary bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-base font-bold px-6 py-3 rounded-xl cursor-pointer whitespace-nowrap">
+                            Simpan Key
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Data Anak -->
+            <div id="admin-tab-data-anak" class="admin-tab-panel hidden space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h3 class="text-lg font-bold text-slate-900">Rekapitulasi Profil Anak</h3>
                     <button type="button" onclick="fetchDataAnakAdmin()"
                         class="btn-primary bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-800 px-6 py-3 rounded-xl text-base font-bold transition cursor-pointer">
                         Segarkan Data
                     </button>
-                    <button type="button" onclick="logoutKader()"
-                        class="btn-primary bg-red-50 hover:bg-red-100 active:bg-red-200 text-red-700 border border-red-200 px-6 py-3 rounded-xl text-base font-bold transition cursor-pointer">
-                        Keluar
-                    </button>
                 </div>
-            </header>
-
-            <!-- Konfigurasi API Key Gemini — hanya di area kader -->
-            <div id="gemini-key-guard"
-                class="mb-6 p-5 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <div>
-                    <p id="gemini-guard-title" class="text-base font-bold text-amber-900">API Key Gemini belum terpasang</p>
-                    <p id="gemini-guard-desc" class="text-sm text-amber-800 mt-1">
-                        Atur kunci API Gemini di sini agar fitur Scan Gizi warga bisa berjalan.
-                    </p>
-                </div>
-                <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-                    <input type="password" id="web-gemini-key" placeholder="AIzaSy..."
-                        class="bg-white border border-amber-200 text-base px-4 py-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-400 w-full sm:w-64">
-                    <button type="button" onclick="simpanGeminiKey()"
-                        class="btn-primary bg-amber-600 hover:bg-amber-700 active:bg-amber-800 text-white text-base font-bold px-6 py-3 rounded-xl cursor-pointer whitespace-nowrap">
-                        Simpan Key
-                    </button>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 w-full">
+                    <table class="w-full text-left text-base text-slate-600 min-w-[720px]">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">Nama Anak</th>
+                                <th class="p-4">Tgl Lahir (Umur)</th>
+                                <th class="p-4">L/P</th>
+                                <th class="p-4">Nama Ibu</th>
+                                <th class="p-4">No. WA</th>
+                                <th class="p-4">BB/TB Lahir</th>
+                                <th class="p-4">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-anak-admin">
+                            <tr>
+                                <td colspan="7" class="p-6 text-center text-slate-400">Memuat data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <div class="overflow-x-auto rounded-xl border border-slate-200">
-                <table class="w-full text-left text-base text-slate-600 min-w-[640px]">
-                    <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
-                        <tr>
-                            <th class="p-4">Nama Anak</th>
-                            <th class="p-4">Tgl Lahir (Umur)</th>
-                            <th class="p-4">L/P</th>
-                            <th class="p-4">Nama Ibu</th>
-                            <th class="p-4">No. WA</th>
-                            <th class="p-4">BB/TB Lahir</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabel-anak-admin">
-                        <tr>
-                            <td colspan="6" class="p-6 text-center text-slate-400">Memuat data...</td>
-                        </tr>
-                    </tbody>
-                </table>
+            <!-- TAB: Catatan Bulanan Posyandu -->
+            <div id="admin-tab-catatan-bulanan" class="admin-tab-panel hidden space-y-8">
+                <div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Pencatatan Bulanan Posyandu</h3>
+                    <p class="text-base text-slate-500">Input antropometri balita setiap kegiatan Posyandu bulanan.</p>
+                </div>
+
+                <form id="form-pemeriksaan-bulanan" class="p-6 rounded-2xl border-2 border-emerald-100 bg-emerald-50/40 space-y-6" onsubmit="event.preventDefault(); simpanPemeriksaanBulanan();">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                        <div class="sm:col-span-2">
+                            <label for="pemeriksaan-anak-id" class="block text-base font-bold text-slate-700 mb-2">Pilih Anak</label>
+                            <select id="pemeriksaan-anak-id" required
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white">
+                                <option value="">Memuat daftar anak...</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="pemeriksaan-tanggal" class="block text-base font-bold text-slate-700 mb-2">Tanggal Pemeriksaan</label>
+                            <input type="date" id="pemeriksaan-tanggal" required
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="pemeriksaan-bb" class="block text-base font-bold text-slate-700 mb-2">Berat Badan (kg)</label>
+                            <input type="number" step="0.1" id="pemeriksaan-bb" required placeholder="10.5"
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="pemeriksaan-tb" class="block text-base font-bold text-slate-700 mb-2">Tinggi Badan (cm)</label>
+                            <input type="number" step="0.1" id="pemeriksaan-tb" required placeholder="75.0"
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="pemeriksaan-lk" class="block text-base font-bold text-slate-700 mb-2">Lingkar Kepala (cm)</label>
+                            <input type="number" step="0.1" id="pemeriksaan-lk" placeholder="45.0"
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="pemeriksaan-lila" class="block text-base font-bold text-slate-700 mb-2">Lingkar Lengan / LILA (cm)</label>
+                            <input type="number" step="0.1" id="pemeriksaan-lila" placeholder="13.5"
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="pemeriksaan-catatan" class="block text-base font-bold text-slate-700 mb-2">Catatan / Vitamin</label>
+                            <input type="text" id="pemeriksaan-catatan" placeholder="Contoh: Vitamin A, MT, dll."
+                                class="w-full px-4 py-3.5 border border-slate-200 rounded-xl text-base focus:ring-2 focus:ring-emerald-500 focus:outline-none">
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-simpan-pemeriksaan"
+                        class="btn-primary w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-base px-8 py-3.5 rounded-xl cursor-pointer shadow-sm">
+                        Simpan Data Pemeriksaan
+                    </button>
+                </form>
+
+                <div>
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                        <h3 class="text-lg font-bold text-slate-900">Rekapan Pemeriksaan Bulanan</h3>
+                        <button type="button" onclick="loadTabelPemeriksaanBulanan()"
+                            class="btn-primary bg-slate-100 hover:bg-slate-200 text-slate-800 px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer">
+                            Segarkan Tabel
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto rounded-xl border border-slate-200 w-full">
+                        <table class="w-full text-left text-base text-slate-600 min-w-[900px]">
+                            <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                                <tr>
+                                    <th class="p-4">Tanggal</th>
+                                    <th class="p-4">Nama Anak</th>
+                                    <th class="p-4">BB (kg)</th>
+                                    <th class="p-4">TB (cm)</th>
+                                    <th class="p-4">LK (cm)</th>
+                                    <th class="p-4">LILA (cm)</th>
+                                    <th class="p-4">Catatan</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-pemeriksaan-bulanan">
+                                <tr>
+                                    <td colspan="7" class="p-6 text-center text-slate-400">Memuat rekapan pemeriksaan...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: Log Nutrisi AI -->
+            <div id="admin-tab-log-nutrisi" class="admin-tab-panel hidden space-y-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900">Log Nutrisi AI (Scan Makanan)</h3>
+                        <p class="text-sm text-slate-500 mt-1">Riwayat analisis gizi dari fitur Scan Gizi warga.</p>
+                    </div>
+                    <button type="button" onclick="loadLogNutrisiAI()"
+                        class="btn-primary bg-slate-100 hover:bg-slate-200 text-slate-800 px-5 py-2.5 rounded-xl text-sm font-bold cursor-pointer">
+                        Segarkan Log
+                    </button>
+                </div>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 w-full">
+                    <table class="w-full text-left text-base text-slate-600 min-w-[960px]">
+                        <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                            <tr>
+                                <th class="p-4">Tanggal Scan</th>
+                                <th class="p-4">Nama Anak</th>
+                                <th class="p-4">Status Gizi</th>
+                                <th class="p-4">Analisis AI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabel-log-nutrisi">
+                            <tr>
+                                <td colspan="4" class="p-6 text-center text-slate-400">Memuat log nutrisi...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </section>
     </main>
@@ -354,6 +516,7 @@
             GEMINI_API_KEY = keyInput;
             initGeminiKeyGuard();
             tampilkanToast('API Key Gemini berhasil disimpan.');
+            loadRingkasanDashboard();
         }
 
         /* ============================================================
@@ -417,10 +580,52 @@
             document.getElementById(viewId).classList.remove('hidden');
 
             if (viewId === 'view-admin') {
-                initGeminiKeyGuard();
-                fetchDataAnakAdmin();
+                initAdminDashboard();
             }
             if (viewId === 'view-scan-gizi') renderDropdownAnak();
+        }
+
+        /** Inisialisasi penuh dashboard kader setelah login / akses admin */
+        function initAdminDashboard() {
+            initGeminiKeyGuard();
+            isiTanggalHariIni();
+            switchAdminTab('ringkasan');
+            loadAnakDropdown();
+            fetchDataAnakAdmin();
+            loadTabelPemeriksaanBulanan();
+            loadLogNutrisiAI();
+            loadRingkasanDashboard();
+        }
+
+        /** Tab navigasi internal dashboard kader */
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-panel').forEach(panel => panel.classList.add('hidden'));
+            document.querySelectorAll('.admin-tab-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-emerald-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-700');
+            });
+
+            const panel = document.getElementById('admin-tab-' + tabName);
+            const btn = document.getElementById('tab-btn-' + tabName);
+            if (panel) panel.classList.remove('hidden');
+            if (btn) {
+                btn.classList.add('active', 'bg-emerald-600', 'text-white');
+                btn.classList.remove('bg-slate-100', 'text-slate-700');
+            }
+
+            if (tabName === 'ringkasan') loadRingkasanDashboard();
+            if (tabName === 'data-anak') fetchDataAnakAdmin();
+            if (tabName === 'catatan-bulanan') {
+                isiTanggalHariIni();
+                loadAnakDropdown();
+                loadTabelPemeriksaanBulanan();
+            }
+            if (tabName === 'log-nutrisi') loadLogNutrisiAI();
+        }
+
+        function isiTanggalHariIni() {
+            const el = document.getElementById('pemeriksaan-tanggal');
+            if (el) el.value = new Date().toISOString().split('T')[0];
         }
 
         /* ============================================================
@@ -561,7 +766,8 @@
 
         async function fetchDataAnakAdmin() {
             const tbody = document.getElementById('tabel-anak-admin');
-            tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400">Menyinkronkan data...</td></tr>';
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-400">Menyinkronkan data...</td></tr>';
 
             try {
                 const { data, error } = await _supabase
@@ -572,7 +778,7 @@
                 if (error) throw error;
 
                 if (!data || data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-500">Belum ada anak yang terdaftar.</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="7" class="p-6 text-center text-slate-500">Belum ada anak yang terdaftar.</td></tr>';
                     return;
                 }
 
@@ -588,12 +794,252 @@
                             <td class="p-4">${escapeHtml(item.nama_ibu)}</td>
                             <td class="p-4 text-emerald-700 font-medium">${escapeHtml(item.no_hp)}</td>
                             <td class="p-4 text-slate-500">${item.bb_lahir ?? '—'} kg / ${item.tb_lahir ?? '—'} cm</td>
+                            <td class="p-4">
+                                <button type="button" data-anak-id="${item.id}" data-anak-nama="${escapeHtml(item.nama_anak)}"
+                                    onclick="hapusDataAnak(this.dataset.anakId, this.dataset.anakNama)"
+                                    class="text-sm font-bold text-red-600 hover:text-red-800 px-3 py-1.5 rounded-lg hover:bg-red-50 transition cursor-pointer">
+                                    Hapus
+                                </button>
+                            </td>
                         </tr>
                     `;
                 }).join('');
             } catch (err) {
                 console.error('[Admin Fetch]', err);
-                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-red-600 font-medium">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" class="p-6 text-center text-red-600 font-medium">Gagal memuat data: ${escapeHtml(err.message)}</td></tr>`;
+            }
+        }
+
+        /** Hapus profil anak (CRUD — Delete) */
+        async function hapusDataAnak(anakId, namaAnak) {
+            if (!confirm(`Yakin hapus data anak "${namaAnak}"? Tindakan ini tidak dapat dibatalkan.`)) return;
+
+            try {
+                const { error } = await _supabase.from('anak').delete().eq('id', anakId);
+                if (error) throw error;
+
+                tampilkanToast('Data anak berhasil dihapus.');
+                await muatDaftarAnak();
+                renderDropdownAnak();
+                loadAnakDropdown();
+                fetchDataAnakAdmin();
+                loadRingkasanDashboard();
+            } catch (err) {
+                console.error('[Hapus Anak]', err);
+                tampilkanToast('Gagal menghapus: ' + err.message, 'error');
+            }
+        }
+
+        /** Ringkasan statistik dashboard kader */
+        async function loadRingkasanDashboard() {
+            const elTotalAnak = document.getElementById('stat-total-anak');
+            const elPemeriksaan = document.getElementById('stat-pemeriksaan-bulan');
+            const elNutrisi = document.getElementById('stat-total-nutrisi');
+            const elGemini = document.getElementById('stat-gemini-status');
+            if (!elTotalAnak) return;
+
+            try {
+                const now = new Date();
+                const awalBulan = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+
+                const [resAnak, resPemeriksaan, resNutrisi] = await Promise.all([
+                    _supabase.from('anak').select('id', { count: 'exact', head: true }),
+                    _supabase.from('pemeriksaan_bulanan').select('id', { count: 'exact', head: true }).gte('tanggal_periksa', awalBulan),
+                    _supabase.from('harian_nutrisi').select('id', { count: 'exact', head: true })
+                ]);
+
+                elTotalAnak.textContent = resAnak.count ?? 0;
+                elPemeriksaan.textContent = resPemeriksaan.error ? '—' : (resPemeriksaan.count ?? 0);
+                elNutrisi.textContent = resNutrisi.count ?? 0;
+                elGemini.textContent = GEMINI_API_KEY ? 'Aktif ✓' : 'Belum diatur';
+                elGemini.className = GEMINI_API_KEY
+                    ? 'text-base font-bold text-emerald-700 mt-2'
+                    : 'text-base font-bold text-amber-700 mt-2';
+            } catch (err) {
+                console.error('[Ringkasan]', err);
+            }
+        }
+
+        /** Load dropdown anak untuk form pemeriksaan bulanan */
+        async function loadAnakDropdown() {
+            const select = document.getElementById('pemeriksaan-anak-id');
+            if (!select) return;
+
+            try {
+                const { data, error } = await _supabase
+                    .from('anak')
+                    .select('id, nama_anak')
+                    .order('nama_anak', { ascending: true });
+
+                if (error) throw error;
+
+                const nilaiSebelumnya = select.value;
+
+                if (!data || data.length === 0) {
+                    select.innerHTML = '<option value="">Belum ada anak terdaftar</option>';
+                    return;
+                }
+
+                select.innerHTML =
+                    '<option value="">— Pilih anak —</option>' +
+                    data.map(a => `<option value="${a.id}">${escapeHtml(a.nama_anak)}</option>`).join('');
+
+                if (nilaiSebelumnya && data.some(a => a.id === nilaiSebelumnya)) {
+                    select.value = nilaiSebelumnya;
+                }
+            } catch (err) {
+                console.error('[loadAnakDropdown]', err);
+                select.innerHTML = '<option value="">Gagal memuat daftar anak</option>';
+                tampilkanToast('Gagal memuat dropdown anak: ' + err.message, 'error');
+            }
+        }
+
+// 1. FUNGSI UNTUK MENYIMPAN DATA KE TABEL 'timbangan_bulanan'
+async function simpanPemeriksaanBulanan() {
+    const anakId = document.getElementById('pemeriksaan-anak-id').value;
+    const tanggalTimbang = document.getElementById('pemeriksaan-tanggal').value || new Date().toISOString().split('T')[0];
+    const bb = parseFloat(document.getElementById('pemeriksaan-bb').value);
+    const tb = parseFloat(document.getElementById('pemeriksaan-tb').value);
+    const lk = parseFloat(document.getElementById('pemeriksaan-lk').value) || null;
+    const catatan = document.getElementById('pemeriksaan-catatan').value;
+
+    // Otomatis hitung atau default-kan bulan_ke (misal untuk sementara kita set 1 atau hitung berdasarkan umur)
+    // Mas juga bisa menambah input #pemeriksaan-bulan-ke di HTML jika ingin diisi manual oleh kader
+    const bulanKe = 1; 
+
+    if (!anakId || !bb || !tb) {
+        alert('Mohon isi Nama Anak, Berat Badan, dan Tinggi Badan!');
+        return;
+    }
+
+    try {
+        // Menyimpan langsung sesuai kolom asli di gambar image_788f1e.png
+        const { data, error } = await _supabase
+            .from('timbangan_bulanan')
+            .insert([{
+                anak_id: anakId,
+                berat_badan: bb,
+                tinggi_badan: tb,
+                lingkar_kepala: lk,
+                bulan_ke: bulanKe,
+                catatan_kader: catatan,
+                tanggal_timbang: tanggalTimbang
+            }]);
+
+        if (error) throw error;
+
+        alert('Data pemeriksaan bulanan berhasil disimpan!');
+        
+        // Reset form setelah sukses
+        document.getElementById('pemeriksaan-bb').value = '';
+        document.getElementById('pemeriksaan-tb').value = '';
+        document.getElementById('pemeriksaan-lk').value = '';
+        document.getElementById('pemeriksaan-catatan').value = '';
+        
+        // Refresh tabel rekapan biar langsung muncul
+        loadTabelPemeriksaanBulanan();
+        loadRingkasanDashboard();
+
+    } catch (error) {
+        console.error('Error simpan data:', error.message);
+        alert('Gagal menyimpan data: ' + error.message);
+    }
+}
+
+        // 2. FUNGSI UNTUK MENAMPILKAN REKAPAN DARI TABEL 'timbangan_bulanan'
+async function loadTabelPemeriksaanBulanan() {
+    try {
+        // Ambil data timbangan bulanan sekaligus join nama anak dari tabel 'anak'
+        const { data, error } = await _supabase
+            .from('timbangan_bulanan')
+            .select(`
+                id,
+                tanggal_timbang,
+                berat_badan,
+                tinggi_badan,
+                lingkar_kepala,
+                bulan_ke,
+                catatan_kader,
+                anak ( nama_anak )
+            `)
+            .order('tanggal_timbang', { ascending: false });
+
+        if (error) throw error;
+
+        const tbody = document.getElementById('tabel-pemeriksaan-body'); // Pastikan ID ini sesuai di HTML Mas
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+
+        if (data.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="7" class="text-center p-4 text-slate-400">Belum ada data pemeriksaan bulan ini.</td></tr>`;
+            return;
+        }
+
+        data.forEach((item, index) => {
+            const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
+            const tgl = new Date(item.tanggal_timbang).toLocaleDateString('id-ID');
+            
+            tbody.innerHTML += `
+                <tr class="border-b border-slate-100 hover:bg-slate-50/50">
+                    <td class="p-3 font-medium text-slate-800">${namaAnak}</td>
+                    <td class="p-3 text-slate-600">${tgl}</td>
+                    <td class="p-3 text-slate-700 font-semibold">${item.berat_badan} kg</td>
+                    <td class="p-3 text-slate-700">${item.tinggi_badan} cm</td>
+                    <td class="p-3 text-slate-700">${item.lingkar_kepala || '-'} cm</td>
+                    <td class="p-3 text-slate-500 text-sm">${item.catatan_kader || '-'}</td>
+                </tr>
+            `;
+        });
+
+    } catch (error) {
+        console.error('Error load tabel:', error.message);
+    }
+}
+
+        /** Muat log scan nutrisi AI dari harian_nutrisi */
+        async function loadLogNutrisiAI() {
+            const tbody = document.getElementById('tabel-log-nutrisi');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-400">Menyinkronkan log...</td></tr>';
+
+            try {
+                const { data, error } = await _supabase
+                    .from('harian_nutrisi')
+                    .select(`
+                        id,
+                        tanggal_scan,
+                        analisis_ai,
+                        status_gizi_hari_ini,
+                        anak ( nama_anak )
+                    `)
+                    .order('tanggal_scan', { ascending: false });
+
+                if (error) throw error;
+
+                if (!data || data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" class="p-6 text-center text-slate-500">Belum ada log scan nutrisi AI.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = data.map(row => {
+                    const namaAnak = row.anak?.nama_anak ?? '—';
+                    const status = row.status_gizi_hari_ini ?? '—';
+                    const statusClass = status === 'Kurang'
+                        ? 'bg-amber-100 text-amber-800'
+                        : 'bg-emerald-100 text-emerald-800';
+                    return `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/80 transition">
+                            <td class="p-4 font-medium whitespace-nowrap align-top">${escapeHtml(row.tanggal_scan)}</td>
+                            <td class="p-4 font-semibold text-slate-900 align-top">${escapeHtml(namaAnak)}</td>
+                            <td class="p-4 align-top"><span class="text-sm font-bold px-3 py-1 rounded-full ${statusClass}">${escapeHtml(status)}</span></td>
+                            <td class="p-4 text-slate-700 whitespace-pre-line break-words align-top min-w-[280px]">${escapeHtml(row.analisis_ai ?? '—')}</td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('[Log Nutrisi]', err);
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-red-600 font-medium">Gagal memuat log: ${escapeHtml(err.message)}</td></tr>`;
             }
         }
 
