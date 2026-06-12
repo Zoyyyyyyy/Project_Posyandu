@@ -353,16 +353,22 @@
                 </form>
 
                 <div>
-                    <div class="mb-4 flex items-center gap-2">
-                          <label class="text-sm font-medium text-slate-600">Pilih Bulan Pelaksanaan:</label>
-                          <select id="filter-bulan-timbang" onchange="loadTabelPemeriksaanBulanan()" class="rounded-md border border-slate-300 p-2 text-sm bg-white">
-                            <option value="all">-- Semua Bulan --</option>
-                            <option value="2026-06">Juni 2026</option>
-                            <option value="2026-05">Mei 2026</option>
-                            <option value="2026-04">April 2026</option>
-                            </select>
-                        </div>
-                    <div class="overflow-x-auto rounded-xl border border-slate-200 w-full">
+                    <div class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                            <div>
+                        <h3 class="text-lg font-bold text-slate-800">Rekapan Pemeriksaan Bulanan</h3>
+                    <p class="text-xs text-slate-500">Data pertumbuhan fisik balita per periode</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <label class="text-sm font-medium text-slate-600 whitespace-nowrap">Pilih Bulan:</label>
+                    <select id="filter-bulan-timbang" onchange="loadTabelPemeriksaanBulanan()" class="rounded-lg border border-slate-300 p-2 text-sm bg-white font-medium text-slate-700 shadow-sm focus:border-emerald-500 focus:outline-none">
+                        <option value="all">-- Semua Bulan --</option>
+                        <option value="2026-06">Juni 2026</option>
+                        <option value="2026-05">Mei 2026</option>
+                        <option value="2026-04">April 2026</option>
+                    </select>
+                </div>
+            </div>>
+                                <div class="overflow-x-auto rounded-xl border border-slate-200 w-full">
                         <table class="w-full text-left text-base text-slate-600 min-w-[900px]">
                             <thead class="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
                                 <tr>
@@ -944,53 +950,53 @@ async function simpanPemeriksaanBulanan() {
 
         // 2. FUNGSI UNTUK MENAMPILKAN REKAPAN DARI TABEL 'timbangan_bulanan'
 async function loadTabelPemeriksaanBulanan() {
-       try {
-           const { data, error } = await _supabase
-               .from('timbangan_bulanan')
-               .select(`
-                   id, tanggal_timbang, berat_badan, tinggi_badan, lingkar_kepala, bulan_ke, catatan_kader,
-                   anak ( nama_anak )
-               `)
-               .order('tanggal_timbang', { ascending: false });
+    try {
+        const { data, error } = await _supabase
+            .from('timbangan_bulanan')
+            .select(`
+                id, tanggal_timbang, berat_badan, tinggi_badan, lingkar_kepala, bulan_ke, catatan_kader,
+                anak ( nama_anak )
+            `)
+            .order('tanggal_timbang', { ascending: false });
 
-           if (error) throw error;
+        if (error) throw error;
 
-           const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
-           if (!tbody) return;
-           tbody.innerHTML = '';
+        const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
+        if (!tbody) return;
+        tbody.innerHTML = '';
 
-           const filterBulan = document.getElementById('filter-bulan-timbang').value; // Ambil filter 'YYYY-MM'
+        const filterBulan = document.getElementById('filter-bulan-timbang').value;
 
-           // Filter data berdasarkan bulan pilihan kader
-           const filteredData = data.filter(item => {
-               if (filterBulan === 'all') return true;
-               return item.tanggal_timbang.startsWith(filterBulan);
-           });
+        // Proses penyaringan bulan
+        const filteredData = data.filter(item => {
+            if (filterBulan === 'all') return true;
+            return item.tanggal_timbang && item.tanggal_timbang.startsWith(filterBulan);
+        });
 
-           if (filteredData.length === 0) {
-               tbody.innerHTML = `<tr><td colspan="6" class="text-center p-4 text-slate-400">Tidak ada data pemeriksaan di bulan ini.</td></tr>`;
-               return;
-           }
+        if (filteredData.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-slate-400 bg-slate-50/50 rounded-b-xl">Tidak ada data pemeriksaan pada bulan terpilih.</td></tr>`;
+            return;
+        }
 
-           filteredData.forEach((item) => {
-               const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
-               const tgl = new Date(item.tanggal_timbang).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-               
-               tbody.innerHTML += `
-                   <tr class="border-b border-slate-100 hover:bg-slate-50/50">
-                       <td class="p-3 text-slate-600 font-medium">${tgl}</td>
-                       <td class="p-3 text-slate-800 font-semibold">${namaAnak}</td>
-                       <td class="p-3 text-emerald-600 font-bold">${item.berat_badan} kg</td>
-                       <td class="p-3 text-slate-700">${item.tinggi_badan} cm</td>
-                       <td class="p-3 text-slate-700">${item.lingkar_kepala || '-'} cm</td>
-                       <td class="p-3 text-slate-500 text-sm">${item.catatan_kader || '-'}</td>
-                   </tr>
-               `;
-           });
-       } catch (error) {
-           console.error('Error:', error.message);
-       }
-   }
+        filteredData.forEach((item) => {
+            const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
+            const tgl = new Date(item.tanggal_timbang).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            tbody.innerHTML += `
+                <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                    <td class="p-3 text-slate-600 text-sm">${tgl}</td>
+                    <td class="p-3 text-slate-800 font-semibold text-sm">${namaAnak}</td>
+                    <td class="p-3 text-emerald-600 font-bold text-sm">${item.berat_badan} kg</td>
+                    <td class="p-3 text-slate-700 text-sm">${item.tinggi_badan} cm</td>
+                    <td class="p-3 text-slate-700 text-sm">${item.lingkar_kepala || '-'} cm</td>
+                    <td class="p-3 text-slate-500 text-xs">${item.catatan_kader || '-'}</td>
+                </tr>
+            `;
+        });
+    } catch (error) {
+        console.error('Error rekap bulanan:', error.message);
+    }
+}
 
         /** Muat log scan nutrisi AI dari harian_nutrisi */
         async function loadLogNutrisiAI() {
