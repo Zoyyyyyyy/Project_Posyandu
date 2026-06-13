@@ -940,7 +940,9 @@ async function loadTabelPemeriksaanBulanan() {
         if (!tbody) return;
         tbody.innerHTML = '';
 
-        const filterBulan = document.getElementById('filter-bulan-timbang').value;
+        // AMAN: Cek dulu apakah elemen filter ada, kalau tidak ada default ke 'all'
+        const filterEl = document.getElementById('filter-bulan-timbang');
+        const filterBulan = filterEl ? filterEl.value : 'all';
 
         // Proses penyaringan bulan
         const filteredData = data.filter(item => {
@@ -955,16 +957,25 @@ async function loadTabelPemeriksaanBulanan() {
 
         filteredData.forEach((item) => {
             const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
-            const tgl = new Date(item.tanggal_timbang).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+            
+            // Format tanggal yang aman dari bug timezone
+            let tgl = '—';
+            if (item.tanggal_timbang) {
+                const parts = item.tanggal_timbang.split('-');
+                if (parts.length === 3) {
+                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                    tgl = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                }
+            }
             
             tbody.innerHTML += `
                 <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
                     <td class="p-3 text-slate-600 text-sm">${tgl}</td>
-                    <td class="p-3 text-slate-800 font-semibold text-sm">${namaAnak}</td>
+                    <td class="p-3 text-slate-800 font-semibold text-sm">${escapeHtml(namaAnak)}</td>
                     <td class="p-3 text-emerald-600 font-bold text-sm">${item.berat_badan} kg</td>
                     <td class="p-3 text-slate-700 text-sm">${item.tinggi_badan} cm</td>
                     <td class="p-3 text-slate-700 text-sm">${item.lingkar_kepala || '-'} cm</td>
-                    <td class="p-3 text-slate-500 text-xs">${item.catatan_kader || '-'}</td>
+                    <td class="p-3 text-slate-500 text-xs">${escapeHtml(item.catatan_kader) || '-'}</td>
                 </tr>
             `;
         });
