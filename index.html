@@ -30,7 +30,8 @@
     <!-- NAVIGASI UTAMA -->
     <nav class="bg-emerald-700 text-white shadow-sm sticky top-0 z-40" role="navigation" aria-label="Menu utama">
         <div class="max-w-5xl mx-auto px-5 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
-            <button type="button" onclick="switchView('view-register')"
+            <!-- Diubah agar kembali ke Landing Page saat logo diklik -->
+            <button type="button" onclick="switchView('view-landing')"
                 class="text-left font-bold text-lg tracking-tight hover:opacity-90 transition cursor-pointer">
                 Posyandu Demalang
             </button>
@@ -52,6 +53,58 @@
     </nav>
 
     <main class="max-w-5xl mx-auto px-5 py-6 sm:py-8">
+
+        <!-- VIEW: LANDING PAGE SECTION -->
+        <section id="view-landing" class="spa-view max-w-5xl mx-auto py-6 md:py-12">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                <!-- Teks Utama / Hero -->
+                <div class="space-y-6 text-center md:text-left">
+                    <span class="px-4 py-1.5 bg-emerald-100 text-emerald-800 text-xs font-semibold rounded-full uppercase tracking-wider">
+                        Inovasi Layanan Kesehatan Balita
+                    </span>
+                    <h1 class="text-4xl md:text-5xl font-black text-slate-900 leading-tight">
+                        Layanan Digital <br class="hidden md:inline">
+                        <span class="text-emerald-600">Posyandu Demalang</span>
+                    </h1>
+                    <p class="text-base text-slate-600 max-w-md mx-auto md:mx-0 leading-relaxed">
+                        Sistem pencatatan tumbuh kembang balita, pemantauan status gizi berkala, dan analisis kesehatan pintar berbasis kecerdasan buatan untuk masa depan anak yang lebih cerah.
+                    </p>
+                    <!-- Tombol Aksi Utama -->
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start pt-2">
+                        <button onclick="bukaHalamanKader()" class="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg shadow-emerald-600/20 transition transform hover:-translate-y-0.5 text-sm cursor-pointer">
+                            Masuk Dashboard Kader
+                        </button>
+                        <button onclick="switchView('view-scan-gizi')" class="px-6 py-3.5 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold rounded-xl transition text-sm cursor-pointer">
+                            Coba Scan Gizi AI
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Ilustrasi/Grafis Sederhana (Aesthetic Tailwind Grid) -->
+                <div class="grid grid-cols-2 gap-4 relative">
+                    <div class="space-y-4">
+                        <div class="bg-emerald-500/10 p-8 rounded-2xl border border-emerald-500/20 text-center">
+                            <div class="text-3xl font-extrabold text-emerald-600 mb-1">100%</div>
+                            <div class="text-xs font-medium text-slate-600 uppercase tracking-wide">Data Terintegrasi</div>
+                        </div>
+                        <div class="bg-slate-900 p-6 rounded-2xl text-white text-center shadow-xl">
+                            <div class="text-2xl font-bold mb-1">Smart AI</div>
+                            <div class="text-xs text-slate-400">Analisis Gizi Instan</div>
+                        </div>
+                    </div>
+                    <div class="space-y-4 pt-8">
+                        <div class="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-md text-center">
+                            <div class="text-3xl font-extrabold text-slate-900 mb-1">Pantau</div>
+                            <div class="text-xs font-medium text-slate-500 uppercase tracking-wide">Timbangan Bulanan</div>
+                        </div>
+                        <div class="bg-emerald-600 p-6 rounded-2xl text-white text-center shadow-lg shadow-emerald-600/30">
+                            <div class="text-xl font-bold">Kader Aktif</div>
+                            <p class="text-xs text-emerald-100 mt-1">Pelayanan Responsif</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <!-- VIEW: LOGIN KADER -->
         <section id="view-login-kader" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8 max-w-md mx-auto">
@@ -78,15 +131,16 @@
                     class="btn-primary w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold text-base rounded-xl cursor-pointer shadow-sm">
                     Masuk Dashboard
                 </button>
-                <button type="button" onclick="switchView('view-register')"
+                <!-- Diubah agar kembali ke Landing Page jika batal login -->
+                <button type="button" onclick="switchView('view-landing')"
                     class="w-full text-base font-semibold text-slate-500 hover:text-slate-700 py-2 transition cursor-pointer">
-                    Kembali ke Pendaftaran
+                    Kembali ke Beranda Utama
                 </button>
             </form>
         </section>
 
-        <!-- VIEW: REGISTRASI -->
-        <section id="view-register" class="spa-view bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
+        <!-- VIEW: REGISTRASI (Ditambahkan class 'hidden' secara default agar tidak langsung tampil di awal) -->
+        <section id="view-register" class="spa-view hidden bg-white rounded-2xl shadow-sm border border-slate-200/80 p-6 sm:p-8">
             <header class="border-b border-slate-100 pb-5 mb-8">
                 <h2 class="text-2xl font-bold text-slate-900">Pendaftaran Profil Anak</h2>
                 <p class="text-base text-slate-500 mt-2">
@@ -348,52 +402,49 @@
                     </button>
                 </form>
                 <div id="stat-pemeriksaan-bulan" class="hidden"></div>
-    <div class="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm">
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-        <div>
-            <h3 class="text-lg font-bold text-slate-900">Rekapan Pemeriksaan Bulanan</h3>
-            <p class="text-xs text-slate-500 mt-0.5">Daftar riwayat timbangan dan pengukuran balita</p>
-        </div>
-        
-        <div class="w-full sm:w-48">
-            <select id="filter-bulan-timbang" onchange="loadTabelPemeriksaanBulanan()"
-                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white font-medium text-slate-700 shadow-sm">
-                <option value="all">Semua Bulan</option>
-                <option value="-01-">Januari</option>
-                <option value="-02-">Februari</option>
-                <option value="-03-">Maret</option>
-                <option value="-04-">April</option>
-                <option value="-05-">Mei</option>
-                <option value="-06-">Juni</option>
-                <option value="-07-">Juli</option>
-                <option value="-08-">Agustus</option>
-                <option value="-09-">September</option>
-                <option value="-10-">Oktober</option>
-                <option value="-11-">November</option>
-                <option value="-12-">Desember</option>
-            </select>
-        </div>
-    </div>
+                <div class="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">Rekapan Pemeriksaan Bulanan</h3>
+                            <p class="text-xs text-slate-500 mt-0.5">Daftar riwayat timbangan dan pengukuran balita</p>
+                        </div>
+                        
+                        <div class="w-full sm:w-48">
+                            <select id="filter-bulan-timbang" onchange="loadTabelPemeriksaanBulanan()"
+                                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white font-medium text-slate-700 shadow-sm">
+                                <option value="all">Semua Bulan</option>
+                                <option value="-01-">Januari</option>
+                                <option value="-02-">Februari</option>
+                                <option value="-03-">Maret</option>
+                                <option value="-04-">April</option>
+                                <option value="-05-">Mei</option>
+                                <option value="-06-">Juni</option>
+                                <option value="-07-">Juli</option>
+                                <option value="-08-">Agustus</option>
+                                <option value="-09-">September</option>
+                                <option value="-10-">Oktober</option>
+                                <option value="-11-">November</option>
+                                <option value="-12-">Desember</option>
+                            </select>
+                        </div>
+                    </div>
 
-    <div class="overflow-x-auto -mx-4 md:mx-0">
-        <table class="w-full text-left border-collapse min-w-[600px]">
-            <thead>
-                <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-semibold text-xs tracking-wider uppercase">
-                    <th class="p-3">Tanggal</th>
-                    <th class="p-3">Nama Anak</th>
-                    <th class="p-3">Berat Badan</th>
-                    <th class="p-3">Tinggi Badan</th>
-                    <th class="p-3">Lingkar Kepala</th>
-                    <th class="p-3">Catatan Kader</th>
-                </tr>
-            </thead>
-            <tbody id="tabel-pemeriksaan-bulanan">
-                </tbody>
-        </table>
-    </div>
-</div>
-                                
-                </div>
+                    <div class="overflow-x-auto -mx-4 md:mx-0">
+                        <table class="w-full text-left border-collapse min-w-[600px]">
+                            <thead>
+                                <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-semibold text-xs tracking-wider uppercase">
+                                    <th class="p-3">Tanggal</th>
+                                    <th class="p-3">Nama Anak</th>
+                                    <th class="p-3">Berat Badan</th>
+                                    <th class="p-3">Tinggi Badan</th>
+                                    <th class="p-3">Lingkar Kepala</th>
+                                    <th class="p-3">Catatan Kader</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-pemeriksaan-bulanan"></tbody>
+                        </table>
+                    </div>
+                </div>              
             </div>
 
             <!-- TAB: Log Nutrisi AI -->
@@ -409,11 +460,9 @@
                     </button>
                 </div>
                 <div id="log-nutrisi-container" class="w-full space-y-4 mt-4">
-    <div class="p-6 text-center text-slate-400 bg-white border border-slate-200 rounded-xl">
-        ⏳ Memuat log nutrisi anak...
-    </div>
-</div>
-                    </table>
+                    <div class="p-6 text-center text-slate-400 bg-white border border-slate-200 rounded-xl">
+                        ⏳ Memuat log nutrisi anak...
+                    </div>
                 </div>
             </div>  
         </section>
@@ -540,7 +589,7 @@
             const errEl = document.getElementById('login-error');
             if (errEl) errEl.classList.add('hidden');
             tampilkanToast('Anda telah keluar dari area kader.');
-            switchView('view-register');
+            switchView('view-landing'); // Diubah agar kembali ke landing page saat logout
         }
 
         document.getElementById('form-login-kader').addEventListener('submit', (e) => {
@@ -581,6 +630,9 @@
                 initAdminDashboard();
             }
             if (viewId === 'view-scan-gizi') renderDropdownAnak();
+            
+            // Auto scroll ke atas setiap pindah view
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         /** Inisialisasi penuh dashboard kader setelah login / akses admin */
@@ -748,7 +800,7 @@
                 renderDropdownAnak(anakBaru?.id || null);
 
                 tampilkanToast('Profil anak berhasil disimpan.');
-                switchView('view-register');
+                switchView('view-landing'); // Diubah agar kembali ke landing page setelah daftar anak
             } catch (err) {
                 console.error('[Registrasi]', err);
                 tampilkanToast('Gagal menyimpan: ' + err.message, 'error');
@@ -842,7 +894,7 @@
 
                 const [resAnak, resPemeriksaan, resNutrisi] = await Promise.all([
                     _supabase.from('anak').select('id', { count: 'exact', head: true }),
-                    _supabase.from('pemeriksaan_bulanan').select('id', { count: 'exact', head: true }).gte('tanggal_periksa', awalBulan),
+                    _supabase.from('timbangan_bulanan').select('id', { count: 'exact', head: true }).gte('tanggal_timbang', awalBulan),
                     _supabase.from('harian_nutrisi').select('id', { count: 'exact', head: true })
                 ]);
 
@@ -892,225 +944,200 @@
             }
         }
 
-// 1. FUNGSI UNTUK MENYIMPAN DATA KE TABEL 'timbangan_bulanan'
-async function simpanPemeriksaanBulanan() {
-    const anakId = document.getElementById('pemeriksaan-anak-id').value;
-    const tanggalTimbang = document.getElementById('pemeriksaan-tanggal').value || new Date().toISOString().split('T')[0];
-    const bb = parseFloat(document.getElementById('pemeriksaan-bb').value);
-    const tb = parseFloat(document.getElementById('pemeriksaan-tb').value);
-    const lk = parseFloat(document.getElementById('pemeriksaan-lk').value) || null;
-    const catatan = document.getElementById('pemeriksaan-catatan').value;
+        // FUNGSI UNTUK MENYIMPAN DATA KE TABEL 'timbangan_bulanan'
+        async function simpanPemeriksaanBulanan() {
+            const anakId = document.getElementById('pemeriksaan-anak-id').value;
+            const tanggalTimbang = document.getElementById('pemeriksaan-tanggal').value || new Date().toISOString().split('T')[0];
+            const bb = parseFloat(document.getElementById('pemeriksaan-bb').value);
+            const tb = parseFloat(document.getElementById('pemeriksaan-tb').value);
+            const lk = parseFloat(document.getElementById('pemeriksaan-lk').value) || null;
+            const catatan = document.getElementById('pemeriksaan-catatan').value;
+            const bulanKe = 1; 
 
-    // Otomatis hitung atau default-kan bulan_ke (misal untuk sementara kita set 1 atau hitung berdasarkan umur)
-    // Mas juga bisa menambah input #pemeriksaan-bulan-ke di HTML jika ingin diisi manual oleh kader
-    const bulanKe = 1; 
+            if (!anakId || !bb || !tb) {
+                alert('Mohon isi Nama Anak, Berat Badan, dan Tinggi Badan!');
+                return;
+            }
 
-    if (!anakId || !bb || !tb) {
-        alert('Mohon isi Nama Anak, Berat Badan, dan Tinggi Badan!');
-        return;
-    }
+            try {
+                const { data, error } = await _supabase
+                    .from('timbangan_bulanan')
+                    .insert([{
+                        anak_id: anakId,
+                        berat_badan: bb,
+                        tinggi_badan: tb,
+                        lingkar_kepala: lk,
+                        bulan_ke: bulanKe,
+                        catatan_kader: catatan,
+                        tanggal_timbang: tanggalTimbang
+                    }]);
 
-    try {
-        // Menyimpan langsung sesuai kolom asli di gambar image_788f1e.png
-        const { data, error } = await _supabase
-            .from('timbangan_bulanan')
-            .insert([{
-                anak_id: anakId,
-                berat_badan: bb,
-                tinggi_badan: tb,
-                lingkar_kepala: lk,
-                bulan_ke: bulanKe,
-                catatan_kader: catatan,
-                tanggal_timbang: tanggalTimbang
-            }]);
+                if (error) throw error;
 
-        if (error) throw error;
+                alert('Data pemeriksaan bulanan berhasil disimpan!');
+                
+                document.getElementById('pemeriksaan-bb').value = '';
+                document.getElementById('pemeriksaan-tb').value = '';
+                document.getElementById('pemeriksaan-lk').value = '';
+                document.getElementById('pemeriksaan-catatan').value = '';
+                
+                loadTabelPemeriksaanBulanan();
+                loadRingkasanDashboard();
 
-        alert('Data pemeriksaan bulanan berhasil disimpan!');
-        
-        // Reset form setelah sukses
-        document.getElementById('pemeriksaan-bb').value = '';
-        document.getElementById('pemeriksaan-tb').value = '';
-        document.getElementById('pemeriksaan-lk').value = '';
-        document.getElementById('pemeriksaan-catatan').value = '';
-        
-        // Refresh tabel rekapan biar langsung muncul
-        loadTabelPemeriksaanBulanan();
-        loadRingkasanDashboard();
-
-    } catch (error) {
-        console.error('Error simpan data:', error.message);
-        alert('Gagal menyimpan data: ' + error.message);
-    }
-}
-
-        // 2. FUNGSI UNTUK MENAMPILKAN REKAPAN DARI TABEL 'timbangan_bulanan'
-async function loadTabelPemeriksaanBulanan() {
-    try {
-        // 1. Tarik data murni dari timbangan_bulanan join ke tabel anak (kolom nama_anak)
-        const { data, error } = await _supabase
-            .from('timbangan_bulanan')
-            .select(`
-                id, tanggal_timbang, berat_badan, tinggi_badan, lingkar_kepala, bulan_ke, catatan_kader,
-                anak ( nama_anak )
-            `)
-            .order('tanggal_timbang', { ascending: false });
-
-        if (error) throw error;
-
-        const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
-        if (!tbody) return;
-        tbody.innerHTML = '';
-
-        // 2. Ambil nilai filter bulan dari dropdown yang baru dibuat (aman dari nilai null)
-        const filterEl = document.getElementById('filter-bulan-timbang');
-        const filterBulan = filterEl ? filterEl.value : 'all';
-
-        // 3. Filter data berdasarkan format string tanggal (YYYY-MM-DD) di client side
-        const filteredData = data.filter(item => {
-            if (filterBulan === 'all') return true;
-            // Memastikan kecocokan string kode bulan semisal '-06-' di dalam '2026-06-13'
-            return item.tanggal_timbang && item.tanggal_timbang.includes(filterBulan);
-        });
-
-        // 4. Tampilkan pemberitahuan rapi jika data kosong setelah difilter
-        if (filteredData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-slate-400 bg-slate-50/30 rounded-b-xl text-sm">Tidak ada data pemeriksaan pada bulan terpilih.</td></tr>`;
-            return;
+            } catch (error) {
+                console.error('Error simpan data:', error.message);
+                alert('Gagal menyimpan data: ' + error.message);
+            }
         }
 
-        // 5. Render baris-baris data ke dalam tabel HTML
-        filteredData.forEach((item) => {
-            const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
-            
-            // Konversi format tanggal YYYY-MM-DD secara aman menjadi format lokal Indonesia
-            let tglFormatted = '—';
-            if (item.tanggal_timbang) {
-                const parts = item.tanggal_timbang.split('-');
-                if (parts.length === 3) {
-                    const d = new Date(parts[0], parts[1] - 1, parts[2]);
-                    tglFormatted = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+        // FUNGSI UNTUK MENAMPILKAN REKAPAN DARI TABEL 'timbangan_bulanan'
+        async function loadTabelPemeriksaanBulanan() {
+            try {
+                const { data, error } = await _supabase
+                    .from('timbangan_bulanan')
+                    .select(`
+                        id, tanggal_timbang, berat_badan, tinggi_badan, lingkar_kepala, bulan_ke, catatan_kader,
+                        anak ( nama_anak )
+                    `)
+                    .order('tanggal_timbang', { ascending: false });
+
+                if (error) throw error;
+
+                const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
+                if (!tbody) return;
+                tbody.innerHTML = '';
+
+                const filterEl = document.getElementById('filter-bulan-timbang');
+                const filterBulan = filterEl ? filterEl.value : 'all';
+
+                const filteredData = data.filter(item => {
+                    if (filterBulan === 'all') return true;
+                    return item.tanggal_timbang && item.tanggal_timbang.includes(filterBulan);
+                });
+
+                if (filteredData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-slate-400 bg-slate-50/30 rounded-b-xl text-sm">Tidak ada data pemeriksaan pada bulan terpilih.</td></tr>`;
+                    return;
+                }
+
+                filteredData.forEach((item) => {
+                    const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
+                    
+                    let tglFormatted = '—';
+                    if (item.tanggal_timbang) {
+                        const parts = item.tanggal_timbang.split('-');
+                        if (parts.length === 3) {
+                            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+                            tglFormatted = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                        }
+                    }
+                    
+                    tbody.innerHTML += `
+                        <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
+                            <td class="p-3 text-slate-600 text-sm whitespace-nowrap">${tglFormatted}</td>
+                            <td class="p-3 text-slate-800 font-semibold text-sm">${escapeHtml(namaAnak)}</td>
+                            <td class="p-3 text-emerald-600 font-bold text-sm whitespace-nowrap">${item.berat_badan} kg</td>
+                            <td class="p-3 text-slate-700 text-sm whitespace-nowrap">${item.tinggi_badan} cm</td>
+                            <td class="p-3 text-slate-700 text-sm whitespace-nowrap">${item.lingkar_kepala ? item.lingkar_kepala + ' cm' : '-'}</td>
+                            <td class="p-3 text-slate-500 text-xs max-w-xs truncate" title="${escapeHtml(item.catatan_kader || '')}">
+                                ${escapeHtml(item.catatan_kader) || '-'}
+                            </td>
+                        </tr>
+                    `;
+                });
+            } catch (error) {
+                console.error('Error rekap bulanan:', error.message);
+                const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-red-500 font-medium text-sm">Gagal memuat data: ${error.message}</td></tr>`;
                 }
             }
-            
-            // Render elemen tr dengan pengaman escapeHtml bawaan script Mas
-            tbody.innerHTML += `
-                <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                    <td class="p-3 text-slate-600 text-sm whitespace-nowrap">${tglFormatted}</td>
-                    <td class="p-3 text-slate-800 font-semibold text-sm">${escapeHtml(namaAnak)}</td>
-                    <td class="p-3 text-emerald-600 font-bold text-sm whitespace-nowrap">${item.berat_badan} kg</td>
-                    <td class="p-3 text-slate-700 text-sm whitespace-nowrap">${item.tinggi_badan} cm</td>
-                    <td class="p-3 text-slate-700 text-sm whitespace-nowrap">${item.lingkar_kepala ? item.lingkar_kepala + ' cm' : '-'}</td>
-                    <td class="p-3 text-slate-500 text-xs max-w-xs truncate" title="${escapeHtml(item.catatan_kader || '')}">
-                        ${escapeHtml(item.catatan_kader) || '-'}
-                    </td>
-                </tr>
-            `;
-        });
-    } catch (error) {
-        console.error('Error rekap bulanan:', error.message);
-        const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
-        if (tbody) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-red-500 font-medium text-sm">Gagal memuat data: ${error.message}</td></tr>`;
         }
-    }
-}
 
         /** Muat log scan nutrisi AI dari harian_nutrisi */
         async function loadLogNutrisiAI() {
-    try {
-        // Ambil data riwayat nutrisi join nama anak
-        const { data, error } = await _supabase
-            .from('harian_nutrisi')
-            .select(`
-                id, tanggal_scan, foto_url, analisis_ai, status_gizi_hari_ini,
-                anak ( id, nama_anak )
-            `)
-            .order('tanggal_scan', { ascending: false });
+            try {
+                const { data, error } = await _supabase
+                    .from('harian_nutrisi')
+                    .select(`
+                        id, tanggal_scan, foto_url, analisis_ai, status_gizi_hari_ini,
+                        anak ( id, nama_anak )
+                    `)
+                    .order('tanggal_scan', { ascending: false });
 
-        if (error) throw error;
+                if (error) throw error;
 
-        const container = document.getElementById('log-nutrisi-container'); // Pastikan ID container log gizi Mas sesuai
-        if (!container) return;
-        container.innerHTML = '';
+                const container = document.getElementById('log-nutrisi-container');
+                if (!container) return;
+                container.innerHTML = '';
 
-        if (data.length === 0) {
-            container.innerHTML = '<p class="text-slate-400 text-center p-4">Belum ada riwayat scan makanan harian.</p>';
-            return;
-        }
+                if (data.length === 0) {
+                    container.innerHTML = '<p class="text-slate-400 text-center p-4">Belum ada riwayat scan makanan harian.</p>';
+                    return;
+                }
 
-        // PROSES PENGELOMPOKAN: Kelompokkan data berdasarkan Anak ID
-        const groupedByAnak = {};
-        data.forEach(item => {
-            if (!item.anak) return;
-            const anakId = item.anak.id;
-            if (!groupedByAnak[anakId]) {
-                groupedByAnak[anakId] = {
-                    namaAnak: item.anak.nama_anak,
-                    logs: []
-                };
-            }
-            groupedByAnak[anakId].logs.push(item);
-        });
+                const groupedByAnak = {};
+                data.forEach(item => {
+                    if (!item.anak) return;
+                    const anakId = item.anak.id;
+                    if (!groupedByAnak[anakId]) {
+                        groupedByAnak[anakId] = {
+                            namaAnak: item.anak.nama_anak,
+                            logs: []
+                        };
+                    }
+                    groupedByAnak[anakId].logs.push(item);
+                });
 
-        // Loop hasil kelompokkan untuk dijadikan UI Accordion Kotak Per Anak
-        Object.keys(groupedByAnak).forEach(anakId => {
-            const grup = groupedByAnak[anakId];
-            const totalScan = grup.logs.length;
+                Object.keys(groupedByAnak).forEach(anakId => {
+                    const grup = groupedByAnak[anakId];
+                    const totalScan = grup.logs.length;
+                    const collapseId = `collapse-anak-${anakId}`;
 
-            // Membuat ID unik untuk efek buka-tutup klik kader
-            const collapseId = `collapse-anak-${anakId}`;
+                    container.innerHTML += `
+                        <div class="mb-4 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+                            <button onclick="document.getElementById('${collapseId}').classList.toggle('hidden')" 
+                                class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 font-semibold text-slate-800 transition">
+                                <div class="flex items-center gap-2">
+                                    <span>👦 ${grup.namaAnak}</span>
+                                    <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">${totalScan} Kali Scan</span>
+                                </div>
+                                <span class="text-slate-400 text-sm">Klik untuk Detail ▾</span>
+                            </button>
 
-            container.innerHTML += `
-                <div class="mb-4 rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                    <!-- Header Kotak Nama Anak (Bisa Diklik) -->
-                    <button onclick="document.getElementById('${collapseId}').classList.toggle('hidden')" 
-                        class="w-full flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100 font-semibold text-slate-800 transition">
-                        <div class="flex items-center gap-2">
-                            <span>👦 ${grup.namaAnak}</span>
-                            <span class="bg-emerald-100 text-emerald-800 text-xs px-2 py-0.5 rounded-full">${totalScan} Kali Scan</span>
-                        </div>
-                        <span class="text-slate-400 text-sm">Klik untuk Detail ▾</span>
-                    </button>
+                            <div id="${collapseId}" class="hidden p-4 border-t border-slate-100 bg-white">
+                                <div class="mb-4 p-3 bg-amber-50/50 border border-amber-200 rounded-lg text-sm text-amber-900">
+                                    <strong>📌 Ringkasan Nutrisi:</strong> Anak ini telah dipantau sesering <span class="font-bold">${totalScan} kali</span> melalui AI. Selalu pastikan variasi menu makanannya seimbang untuk mendukung tumbuh kembang optimalnya ya, Ibu!
+                                </div>
 
-                    <!-- Isi Riwayat Makanan (Default Tersembunyi 'hidden') -->
-                    <div id="${collapseId}" class="hidden p-4 border-t border-slate-100 bg-white">
-                        
-                        <!-- RANGKUMAN NUTRISI SINGKAT PER ANAK -->
-                        <div class="mb-4 p-3 bg-amber-50/50 border border-amber-200 rounded-lg text-sm text-amber-900">
-                            <strong>📌 Ringkasan Nutrisi:</strong> Anak ini telah dipantau sesering <span class="font-bold">${totalScan} kali</span> melalui AI. Selalu pastikan variasi menu makanannya seimbang untuk mendukung tumbuh kembang optimalnya ya, Ibu!
-                        </div>
-
-                        <!-- DAFTAR RIWAYAT SCAN FOTO MAKANAN -->
-                        <div class="space-y-4">
-                            ${grup.logs.map(log => {
-                                const tglLog = new Date(log.tanggal_scan).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
-                                return `
-                                    <div class="flex flex-col md:flex-row gap-4 p-3 border border-slate-100 rounded-lg bg-slate-50/30">
-                                        ${log.foto_url ? `<img src="${log.foto_url}" class="w-24 h-24 object-cover rounded-lg border border-slate-200" alt="Foto Makanan">` : ''}
-                                        <div class="flex-1">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="text-xs font-medium text-slate-400">${tglLog}</span>
-                                                <span class="px-2 py-0.5 rounded text-xs font-bold ${log.status_gizi_hari_ini === 'Cukup' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
-                                                    Gizi ${log.status_gizi_hari_ini}
-                                                </span>
+                                <div class="space-y-4">
+                                    ${grup.logs.map(log => {
+                                        const tglLog = new Date(log.tanggal_scan).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+                                        return `
+                                            <div class="flex flex-col md:flex-row gap-4 p-3 border border-slate-100 rounded-lg bg-slate-50/30">
+                                                ${log.foto_url ? `<img src="${log.foto_url}" class="w-24 h-24 object-cover rounded-lg border border-slate-200" alt="Foto Makanan">` : ''}
+                                                <div class="flex-1">
+                                                    <div class="flex justify-between items-center mb-1">
+                                                        <span class="text-xs font-medium text-slate-400">${tglLog}</span>
+                                                        <span class="px-2 py-0.5 rounded text-xs font-bold ${log.status_gizi_hari_ini === 'Cukup' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800'}">
+                                                            Gizi ${log.status_gizi_hari_ini}
+                                                        </span>
+                                                    </div>
+                                                    <div class="text-sm text-slate-700 leading-relaxed">${log.analisis_ai.replace(/\n/g, '<br>')}</div>
+                                                </div>
                                             </div>
-                                            <div class="text-sm text-slate-700 leading-relaxed">${log.analisis_ai.replace(/\n/g, '<br>')}</div>
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
+                                        `;
+                                    }).join('')}
+                                </div>
+                            </div>
                         </div>
+                    `;
+                });
 
-                    </div>
-                </div>
-            `;
-        });
-
-    } catch (error) {
-        console.error('Error load log nutrisi:', error.message);
-    }
-}
+            } catch (error) {
+                console.error('Error load log nutrisi:', error.message);
+            }
+        }
 
         function escapeHtml(str) {
             if (str == null) return '';
@@ -1160,7 +1187,6 @@ async function loadTabelPemeriksaanBulanan() {
             }
         }
 
-        /** Alias untuk kompatibilitas pemanggilan lama */
         async function populateDropdownAnak() {
             await muatDaftarAnak();
             renderDropdownAnak();
@@ -1172,7 +1198,6 @@ async function loadTabelPemeriksaanBulanan() {
 
         const GEMINI_MODEL = 'gemini-2.5-flash';
 
-        /** Validasi respons AI — deteksi BUKAN_MAKANAN & ambil status gizi untuk badge */
         function parseResponsGizi(teksMentah) {
             const teks = teksMentah.trim();
 
@@ -1194,7 +1219,6 @@ async function loadTabelPemeriksaanBulanan() {
             return { valid: true, statusGizi };
         }
 
-        /** Escape HTML lalu pertahankan pindah baris sebagai <br> — aman untuk innerHTML */
         function teksKeHtmlAman(teks) {
             return escapeHtml(teks).replace(/\n/g, '<br>');
         }
@@ -1209,7 +1233,6 @@ async function loadTabelPemeriksaanBulanan() {
             document.body.style.overflow = '';
         }
 
-        /** Fungsi inti: scan foto → Gemini → validasi → simpan Supabase */
         async function prosesScanGiziAI() {
             if (!GEMINI_API_KEY) {
                 tampilkanToast('Fitur scan belum aktif. Minta kader Posyandu untuk mengatur API Key Gemini.', 'error');
@@ -1293,7 +1316,6 @@ Ulasan Penting & Saran Praktis Ibu (Maksimal 3 Poin Pendek):
                     throw new Error('AI tidak mengembalikan hasil. Coba foto ulang dengan pencahayaan lebih terang.');
                 }
 
-                // Gabungkan semua part teks agar respons panjang tidak terpotong
                 const aiResultText = candidate.content.parts
                     .filter(p => p.text)
                     .map(p => p.text)
@@ -1305,7 +1327,6 @@ Ulasan Penting & Saran Praktis Ibu (Maksimal 3 Poin Pendek):
 
                 const parsed = parseResponsGizi(aiResultText);
 
-                // BUKAN MAKANAN — hentikan, jangan simpan ke Supabase
                 if (!parsed.valid) {
                     tampilkanModalBukanMakanan();
                     return;
@@ -1314,14 +1335,12 @@ Ulasan Penting & Saran Praktis Ibu (Maksimal 3 Poin Pendek):
                 const badge = document.getElementById('badge-status-gizi');
                 const outputContainer = document.getElementById('hasil-scan-container');
 
-                // Bersihkan tag penanda status agar tidak ikut tampil di teks ulasan utama
                 let cleanText = aiResultText
                     .replace("STATUS: MAKANAN_VALID", "")
                     .replace("[KESIMPULAN_STATUS]: Cukup", "")
                     .replace("[KESIMPULAN_STATUS]: Kurang", "")
                     .trim();
 
-                // Tampilkan seluruh deskripsi, kalori, dan saran gizi secara utuh tanpa terpotong
                 document.getElementById('text-analisis-ai').innerHTML = teksKeHtmlAman(cleanText);
 
                 badge.textContent = 'Gizi ' + parsed.statusGizi;
@@ -1359,7 +1378,10 @@ Ulasan Penting & Saran Praktis Ibu (Maksimal 3 Poin Pendek):
         /* ============================================================
          * INISIALISASI SAAT HALAMAN DIBUKA
          * ============================================================ */
-        muatDaftarAnak().then(() => renderDropdownAnak());
+        muatDaftarAnak().then(() => {
+            renderDropdownAnak();
+            switchView('view-landing'); // KUNCI UTAMA: Memastikan aplikasi selalu memulai dari Landing Page saat dibuka/di-refresh
+        });
     </script>
 </body>
 </html>
