@@ -348,10 +348,50 @@
                     </button>
                 </form>
                 <div id="stat-pemeriksaan-bulan" class="hidden"></div>
-                        <div class="mb-4 p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                    <h3 class="text-lg font-bold text-slate-800">Rekapan Pemeriksaan Bulanan</h3>
-                                    <p class="text-xs text-slate-500">Seluruh data pertumbuhan fisik balita yang telah tercatat</p>
-                                </div>
+    <div class="bg-white rounded-2xl border border-slate-100 p-4 md:p-6 shadow-sm">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        <div>
+            <h3 class="text-lg font-bold text-slate-900">Rekapan Pemeriksaan Bulanan</h3>
+            <p class="text-xs text-slate-500 mt-0.5">Daftar riwayat timbangan dan pengukuran balita</p>
+        </div>
+        
+        <div class="w-full sm:w-48">
+            <select id="filter-bulan-timbang" onchange="loadTabelPemeriksaanBulanan()"
+                class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-emerald-500 focus:outline-none bg-white font-medium text-slate-700 shadow-sm">
+                <option value="all">Semua Bulan</option>
+                <option value="-01-">Januari</option>
+                <option value="-02-">Februari</option>
+                <option value="-03-">Maret</option>
+                <option value="-04-">April</option>
+                <option value="-05-">Mei</option>
+                <option value="-06-">Juni</option>
+                <option value="-07-">Juli</option>
+                <option value="-08-">Agustus</option>
+                <option value="-09-">September</option>
+                <option value="-10-">Oktober</option>
+                <option value="-11-">November</option>
+                <option value="-12-">Desember</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="overflow-x-auto -mx-4 md:mx-0">
+        <table class="w-full text-left border-collapse min-w-[600px]">
+            <thead>
+                <tr class="border-b border-slate-100 bg-slate-50/70 text-slate-500 font-semibold text-xs tracking-wider uppercase">
+                    <th class="p-3">Tanggal</th>
+                    <th class="p-3">Nama Anak</th>
+                    <th class="p-3">Berat Badan</th>
+                    <th class="p-3">Tinggi Badan</th>
+                    <th class="p-3">Lingkar Kepala</th>
+                    <th class="p-3">Catatan Kader</th>
+                </tr>
+            </thead>
+            <tbody id="tabel-pemeriksaan-bulanan">
+                </tbody>
+        </table>
+    </div>
+</div>
                                 
                                 <div class="overflow-x-auto rounded-xl border border-slate-200 w-full">
                         <table class="w-full text-left text-base text-slate-600 min-w-[900px]">
@@ -926,6 +966,7 @@ async function simpanPemeriksaanBulanan() {
         // 2. FUNGSI UNTUK MENAMPILKAN REKAPAN DARI TABEL 'timbangan_bulanan'
 async function loadTabelPemeriksaanBulanan() {
     try {
+        // 1. Tarik data murni dari timbangan_bulanan join ke tabel anak (kolom nama_anak)
         const { data, error } = await _supabase
             .from('timbangan_bulanan')
             .select(`
@@ -940,47 +981,57 @@ async function loadTabelPemeriksaanBulanan() {
         if (!tbody) return;
         tbody.innerHTML = '';
 
-        // AMAN: Cek dulu apakah elemen filter ada, kalau tidak ada default ke 'all'
+        // 2. Ambil nilai filter bulan dari dropdown yang baru dibuat (aman dari nilai null)
         const filterEl = document.getElementById('filter-bulan-timbang');
         const filterBulan = filterEl ? filterEl.value : 'all';
 
-        // Proses penyaringan bulan
+        // 3. Filter data berdasarkan format string tanggal (YYYY-MM-DD) di client side
         const filteredData = data.filter(item => {
             if (filterBulan === 'all') return true;
-            return item.tanggal_timbang && item.tanggal_timbang.startsWith(filterBulan);
+            // Memastikan kecocokan string kode bulan semisal '-06-' di dalam '2026-06-13'
+            return item.tanggal_timbang && item.tanggal_timbang.includes(filterBulan);
         });
 
+        // 4. Tampilkan pemberitahuan rapi jika data kosong setelah difilter
         if (filteredData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-slate-400 bg-slate-50/50 rounded-b-xl">Tidak ada data pemeriksaan pada bulan terpilih.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-slate-400 bg-slate-50/30 rounded-b-xl text-sm">Tidak ada data pemeriksaan pada bulan terpilih.</td></tr>`;
             return;
         }
 
+        // 5. Render baris-baris data ke dalam tabel HTML
         filteredData.forEach((item) => {
             const namaAnak = item.anak ? item.anak.nama_anak : 'Tidak Diketahui';
             
-            // Format tanggal yang aman dari bug timezone
-            let tgl = '—';
+            // Konversi format tanggal YYYY-MM-DD secara aman menjadi format lokal Indonesia
+            let tglFormatted = '—';
             if (item.tanggal_timbang) {
                 const parts = item.tanggal_timbang.split('-');
                 if (parts.length === 3) {
                     const d = new Date(parts[0], parts[1] - 1, parts[2]);
-                    tgl = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+                    tglFormatted = d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
                 }
             }
             
+            // Render elemen tr dengan pengaman escapeHtml bawaan script Mas
             tbody.innerHTML += `
                 <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition">
-                    <td class="p-3 text-slate-600 text-sm">${tgl}</td>
+                    <td class="p-3 text-slate-600 text-sm whitespace-nowrap">${tglFormatted}</td>
                     <td class="p-3 text-slate-800 font-semibold text-sm">${escapeHtml(namaAnak)}</td>
-                    <td class="p-3 text-emerald-600 font-bold text-sm">${item.berat_badan} kg</td>
-                    <td class="p-3 text-slate-700 text-sm">${item.tinggi_badan} cm</td>
-                    <td class="p-3 text-slate-700 text-sm">${item.lingkar_kepala || '-'} cm</td>
-                    <td class="p-3 text-slate-500 text-xs">${escapeHtml(item.catatan_kader) || '-'}</td>
+                    <td class="p-3 text-emerald-600 font-bold text-sm whitespace-nowrap">${item.berat_badan} kg</td>
+                    <td class="p-3 text-slate-700 text-sm whitespace-nowrap">${item.tinggi_badan} cm</td>
+                    <td class="p-3 text-slate-700 text-sm whitespace-nowrap">${item.lingkar_kepala ? item.lingkar_kepala + ' cm' : '-'}</td>
+                    <td class="p-3 text-slate-500 text-xs max-w-xs truncate" title="${escapeHtml(item.catatan_kader || '')}">
+                        ${escapeHtml(item.catatan_kader) || '-'}
+                    </td>
                 </tr>
             `;
         });
     } catch (error) {
         console.error('Error rekap bulanan:', error.message);
+        const tbody = document.getElementById('tabel-pemeriksaan-bulanan');
+        if (tbody) {
+            tbody.innerHTML = `<tr><td colspan="6" class="text-center p-6 text-red-500 font-medium text-sm">Gagal memuat data: ${error.message}</td></tr>`;
+        }
     }
 }
 
